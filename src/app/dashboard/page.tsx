@@ -9,6 +9,7 @@ export default function HomePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [showBIPanels, setShowBIPanels] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -25,11 +26,11 @@ export default function HomePage() {
             src="/background.jpg"
             alt="Background"
             fill
-            className="object-cover blur-sm"
+            className="object-cover blur-xl"
             priority
             quality={100}
           />
-          <div className="absolute inset-0 bg-white/60 backdrop-blur-md"></div>
+          <div className="absolute inset-0 bg-white/70 backdrop-blur-xl"></div>
         </div>
         <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-2xl rounded-2xl p-8">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-orange"></div>
@@ -43,18 +44,18 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden flex flex-col">
       {/* Background Image com overlay */}
       <div className="absolute inset-0">
         <Image
           src="/background.jpg"
           alt="Background"
           fill
-          className="object-cover blur-sm"
+          className="object-cover blur-xl"
           priority
           quality={100}
         />
-        <div className="absolute inset-0 bg-white/60 backdrop-blur-md"></div>
+        <div className="absolute inset-0 bg-white/70 backdrop-blur-xl"></div>
       </div>
 
       {/* Efeitos de fundo com degradê animado */}
@@ -97,11 +98,11 @@ export default function HomePage() {
         ></div>
       </div>
 
-      <div className="relative z-10">
+      <div className="relative z-10 flex flex-col min-h-screen">
         {/* Header */}
         <header className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg m-4 p-4 md:p-6 rounded-2xl">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-8">
+            <div className="flex items-center justify-between w-full md:w-auto gap-8">
               <div className="relative w-32 h-20">
                 <Image
                   src="/logo.png"
@@ -112,7 +113,7 @@ export default function HomePage() {
                 />
               </div>
               
-              {/* Menu */}
+              {/* Menu Desktop */}
               <nav className="hidden md:flex items-center gap-2">
                 <button
                   onClick={() => setShowBIPanels(!showBIPanels)}
@@ -126,8 +127,25 @@ export default function HomePage() {
                   <span>Painéis do B.I.</span>
                 </button>
               </nav>
+
+              {/* Botão Menu Mobile */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {mobileMenuOpen ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  )}
+                </svg>
+              </button>
             </div>
-            <div className="flex items-center gap-4">
+            
+            {/* Info Usuário Desktop */}
+            {/* Info Usuário Desktop */}
+            <div className="hidden md:flex items-center gap-4">
               <div className="text-right">
                 <p className="text-gray-800 font-medium">{session.user?.name}</p>
                 <p className="text-gray-600 text-sm">{session.user?.email}</p>
@@ -140,48 +158,88 @@ export default function HomePage() {
               </button>
             </div>
           </div>
-        </header>
 
-        {/* Painéis do B.I. */}
-        {showBIPanels && (
-          <div className="mx-4 mb-4">
-            <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl p-6">
-              <h2 className="text-xl font-bold mb-4 bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">
-                Painéis do B.I.
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Card BI IPTU */}
-                <div className="bg-gradient-to-br from-primary-red/10 to-primary-orange/10 border-2 border-primary-red/20 rounded-xl p-6 hover:scale-105 transition-transform duration-300 cursor-pointer">
-                  <div className="flex items-center gap-4 mb-3">
-                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary-red/30 to-primary-red/20 flex items-center justify-center">
-                      <span className="text-2xl">🏘️</span>
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-800">BI IPTU</h3>
-                  </div>
-                  <p className="text-gray-600 text-sm">
-                    Business Intelligence para análise de dados do IPTU
-                  </p>
+          {/* Menu Mobile Dropdown */}
+          {mobileMenuOpen && (
+            <div className="md:hidden mt-4 pt-4 border-t border-gray-200">
+              <nav className="space-y-2">
+                <button
+                  onClick={() => {
+                    setShowBIPanels(!showBIPanels)
+                    setMobileMenuOpen(false)
+                  }}
+                  className={`w-full flex items-center gap-2 px-4 py-3 font-medium transition-all rounded-lg ${
+                    showBIPanels 
+                      ? 'bg-gradient-to-r from-primary-red/10 via-primary-orange/10 to-primary-purple/10 text-gray-900 border-l-4 border-primary-orange' 
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <span className="text-lg">📊</span>
+                  <span>Painéis do B.I.</span>
+                </button>
+              </nav>
+              
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="mb-3">
+                  <p className="text-gray-800 font-medium text-sm">{session.user?.name}</p>
+                  <p className="text-gray-600 text-xs">{session.user?.email}</p>
                 </div>
-
-                {/* Card BI TFF */}
-                <div className="bg-gradient-to-br from-primary-green/10 to-primary-orange/10 border-2 border-primary-green/20 rounded-xl p-6 hover:scale-105 transition-transform duration-300 cursor-pointer">
-                  <div className="flex items-center gap-4 mb-3">
-                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary-green/30 to-primary-green/20 flex items-center justify-center">
-                      <span className="text-2xl">📈</span>
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-800">BI TFF</h3>
-                  </div>
-                  <p className="text-gray-600 text-sm">
-                    Business Intelligence para análise de dados da TFF
-                  </p>
-                </div>
+                <button
+                  onClick={() => signOut({ callbackUrl: '/login' })}
+                  className="w-full px-4 py-2 bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple text-white font-semibold rounded-lg hover:shadow-xl transition-all duration-300"
+                >
+                  Sair
+                </button>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </header>
 
         {/* Main Content */}
-        <main className="p-4 md:p-6">
+        <main className="p-4 md:p-6 flex-1">
+          {showBIPanels ? (
+            /* Painéis do B.I. */
+            <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl p-8">
+              <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">
+                Painéis do B.I.
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                {/* Card BI IPTU */}
+                <button 
+                  onClick={() => router.push('/bi-iptu')}
+                  className="bg-gradient-to-br from-primary-red/10 to-primary-orange/10 border-2 border-primary-red/20 rounded-xl p-8 hover:scale-105 transition-transform duration-300 cursor-pointer text-left"
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-primary-red/30 to-primary-red/20 flex items-center justify-center">
+                      <span className="text-3xl">🏘️</span>
+                    </div>
+                    <h3 className="text-3xl font-bold text-gray-800">BI IPTU</h3>
+                  </div>
+                  <p className="text-gray-600">
+                    Business Intelligence para análise de dados do IPTU
+                  </p>
+                </button>
+
+                {/* Card BI TFF */}
+                <button 
+                  onClick={() => router.push('/bi-tff')}
+                  className="bg-gradient-to-br from-primary-green/10 to-primary-orange/10 border-2 border-primary-green/20 rounded-xl p-8 hover:scale-105 transition-transform duration-300 cursor-pointer text-left"
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-primary-green/30 to-primary-green/20 flex items-center justify-center">
+                      <span className="text-3xl">📈</span>
+                    </div>
+                    <h3 className="text-3xl font-bold text-gray-800">BI TFF</h3>
+                  </div>
+                  <p className="text-gray-600">
+                    Business Intelligence para análise de dados da TFF
+                  </p>
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* Dashboard Principal */
+            <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             {/* Card 1 - Vermelho */}
             <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl p-6 hover:scale-105 transition-transform duration-300 cursor-pointer group">
@@ -278,7 +336,27 @@ export default function HomePage() {
               <p className="text-gray-600 text-sm">Ajustar preferências do sistema</p>
             </button>
           </div>
+          </>
+          )}
         </main>
+
+        {/* Footer */}
+        <footer className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg m-4 p-4 rounded-2xl">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-600">
+            <div className="flex items-center gap-2">
+              <span>© 2025</span>
+              <span className="font-semibold bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">
+                Sistema Camaçari APP
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span>Desenvolvido pela</span>
+              <span className="font-semibold bg-gradient-to-r from-primary-purple to-primary-orange bg-clip-text text-transparent">
+                SEFAZ TECNOLOGIA
+              </span>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   )
