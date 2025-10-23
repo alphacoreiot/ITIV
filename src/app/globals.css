@@ -1,0 +1,147 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --primary-red: #ec212a;
+    --primary-green: #8bc03d;
+    --primary-orange: #f68423;
+    --primary-purple: #7c3a96;
+  }
+  
+  body {
+    @apply bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900;
+  }
+}
+
+@layer components {
+  .glass-effect {
+    @apply bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl;
+  }
+  
+  .glass-button {
+    @apply bg-white/10 backdrop-blur-md border border-white/20 rounded-lg px-6 py-3 
+           hover:bg-white/20 transition-all duration-300 shadow-lg
+           hover:shadow-2xl hover:scale-105 active:scale-95;
+  }
+  
+  .input-glass {
+    @apply bg-white/5 backdrop-blur-md border border-white/20 rounded-lg px-4 py-3
+           focus:bg-white/10 focus:border-white/40 outline-none transition-all duration-300
+           text-white placeholder:text-white/50;
+  }
+  
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple 
+           bg-clip-text text-transparent;
+  }
+  
+  .liquid-bg {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .liquid-bg::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(236, 33, 42, 0.15) 0%, transparent 50%),
+                radial-gradient(circle, rgba(139, 192, 61, 0.15) 0%, transparent 50%),
+                radial-gradient(circle, rgba(246, 132, 35, 0.15) 0%, transparent 50%),
+                radial-gradient(circle, rgba(124, 58, 150, 0.15) 0%, transparent 50%);
+    animation: liquid-move 20s ease-in-out infinite;
+    z-index: -1;
+  }
+  
+  @keyframes liquid-move {
+    0%, 100% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+    33% {
+      transform: translate(30px, -50px) rotate(120deg);
+    }
+    66% {
+      transform: translate(-20px, 20px) rotate(240deg);
+    }
+  }
+  
+  /* Animações de brisa suave */
+  @keyframes breeze {
+    0%, 100% {
+      transform: translate(0, 0);
+    }
+    25% {
+      transform: translate(50px, -30px);
+    }
+    50% {
+      transform: translate(-40px, 50px);
+    }
+    75% {
+      transform: translate(30px, 20px);
+    }
+  }
+  
+  @keyframes float-breeze-1 {
+    0%, 100% {
+      transform: translate(0, 0);
+    }
+    33% {
+      transform: translate(60px, 40px);
+    }
+    66% {
+      transform: translate(-30px, -50px);
+    }
+  }
+  
+  @keyframes float-breeze-2 {
+    0%, 100% {
+      transform: translate(0, 0);
+    }
+    33% {
+      transform: translate(-50px, 60px);
+    }
+    66% {
+      transform: translate(40px, -30px);
+    }
+  }
+  
+  @keyframes float-breeze-3 {
+    0%, 100% {
+      transform: translate(0, 0);
+    }
+    33% {
+      transform: translate(70px, -40px);
+    }
+    66% {
+      transform: translate(-60px, 30px);
+    }
+  }
+  
+  @keyframes float-breeze-4 {
+    0%, 100% {
+      transform: translate(0, 0);
+    }
+    33% {
+      transform: translate(-40px, -50px);
+    }
+    66% {
+      transform: translate(50px, 40px);
+    }
+  }
+  
+  @keyframes float-breeze-5 {
+    0%, 100% {
+      transform: translate(-50%, -50%) scale(1);
+    }
+    33% {
+      transform: translate(calc(-50% + 40px), calc(-50% + 50px)) scale(1.1);
+    }
+    66% {
+      transform: translate(calc(-50% - 30px), calc(-50% - 40px)) scale(0.9);
+    }
+  }
+}
