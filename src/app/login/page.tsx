@@ -37,7 +37,21 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-100 p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background Image com overlay */}
+      <div className="absolute inset-0">
+        <Image
+          src="/background.jpg"
+          alt="Background"
+          fill
+          className="object-cover blur-sm"
+          priority
+          quality={100}
+        />
+        {/* Overlay branco com transparência para manter legibilidade */}
+        <div className="absolute inset-0 bg-white/60 backdrop-blur-md"></div>
+      </div>
+
       {/* Efeitos de fundo com degradê animado em formato de brisa */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Camada 1 - Vermelho suave */}
@@ -98,7 +112,7 @@ export default function LoginPage() {
       </div>
 
       {/* Card de Login */}
-      <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-2xl rounded-2xl p-8 md:p-12 w-full max-w-md relative z-10 animate-float">
+      <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-2xl rounded-2xl p-8 md:p-12 w-full max-w-md relative z-10">
         {/* Logo */}
         <div className="flex justify-center -mb-12">
           <div className="relative w-48 h-32">
