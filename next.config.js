@@ -2,7 +2,21 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    remotePatterns: [],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'sefaz.camacari.ba.gov.br',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.camacari.ba.gov.br',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+    unoptimized: false,
   },
 }
 
