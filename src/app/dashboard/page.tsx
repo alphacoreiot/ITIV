@@ -10,12 +10,37 @@ export default function HomePage() {
   const router = useRouter()
   const [showBIPanels, setShowBIPanels] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [noticias, setNoticias] = useState<any[]>([])
+  const [loadingNoticias, setLoadingNoticias] = useState(true)
+  const [clima, setClima] = useState<any>(null)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login')
     }
   }, [status, router])
+
+  useEffect(() => {
+    // Buscar clima de Camaçari
+    fetch('/api/clima')
+      .then(res => res.json())
+      .then(data => setClima(data))
+      .catch(err => console.error('Erro ao carregar clima:', err))
+  }, [])
+
+  useEffect(() => {
+    // Buscar notícias da SEFAZ
+    fetch('/api/noticias')
+      .then(res => res.json())
+      .then(data => {
+        setNoticias(data.noticias || [])
+        setLoadingNoticias(false)
+      })
+      .catch(err => {
+        console.error('Erro ao carregar notícias:', err)
+        setLoadingNoticias(false)
+      })
+  }, [])
 
   if (status === 'loading') {
     return (
@@ -103,12 +128,13 @@ export default function HomePage() {
         <header className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg m-4 p-4 md:p-6 rounded-2xl">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center justify-between w-full md:w-auto gap-8">
-              <div className="relative w-32 h-20">
+              <div className="relative w-auto h-24">
                 <Image
                   src="/logo.png"
                   alt="ITIV Logo"
-                  fill
-                  className="object-contain"
+                  width={200}
+                  height={96}
+                  className="object-contain h-24 w-auto"
                   priority
                 />
               </div>
@@ -238,105 +264,99 @@ export default function HomePage() {
               </div>
             </div>
           ) : (
-            /* Dashboard Principal */
-            <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            {/* Card 1 - Vermelho */}
-            <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl p-6 hover:scale-105 transition-transform duration-300 cursor-pointer group">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary-red/20 to-primary-red/10 flex items-center justify-center group-hover:from-primary-red/30 group-hover:to-primary-red/20 transition-colors">
-                  <span className="text-2xl">📊</span>
-                </div>
-                <span className="text-3xl font-bold text-gray-800">42</span>
-              </div>
-              <h3 className="text-gray-800 font-semibold mb-1">Relatórios</h3>
-              <p className="text-gray-600 text-sm">Documentos gerados</p>
-            </div>
-
-            {/* Card 2 - Verde */}
-            <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl p-6 hover:scale-105 transition-transform duration-300 cursor-pointer group">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary-green/20 to-primary-green/10 flex items-center justify-center group-hover:from-primary-green/30 group-hover:to-primary-green/20 transition-colors">
-                  <span className="text-2xl">✅</span>
-                </div>
-                <span className="text-3xl font-bold text-gray-800">89</span>
-              </div>
-              <h3 className="text-gray-800 font-semibold mb-1">Concluídos</h3>
-              <p className="text-gray-600 text-sm">Processos finalizados</p>
-            </div>
-
-            {/* Card 3 - Laranja */}
-            <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl p-6 hover:scale-105 transition-transform duration-300 cursor-pointer group">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary-orange/20 to-primary-orange/10 flex items-center justify-center group-hover:from-primary-orange/30 group-hover:to-primary-orange/20 transition-colors">
-                  <span className="text-2xl">⏳</span>
-                </div>
-                <span className="text-3xl font-bold text-gray-800">15</span>
-              </div>
-              <h3 className="text-gray-800 font-semibold mb-1">Pendentes</h3>
-              <p className="text-gray-600 text-sm">Aguardando ação</p>
-            </div>
-
-            {/* Card 4 - Roxo */}
-            <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl p-6 hover:scale-105 transition-transform duration-300 cursor-pointer group">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary-purple/20 to-primary-purple/10 flex items-center justify-center group-hover:from-primary-purple/30 group-hover:to-primary-purple/20 transition-colors">
-                  <span className="text-2xl">👥</span>
-                </div>
-                <span className="text-3xl font-bold text-gray-800">127</span>
-              </div>
-              <h3 className="text-gray-800 font-semibold mb-1">Usuários</h3>
-              <p className="text-gray-600 text-sm">Ativos no sistema</p>
-            </div>
-          </div>
-
-          {/* Seção de Atividades Recentes */}
-          <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl p-6 mb-6">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <span className="bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">Atividades Recentes</span>
-            </h2>
-            <div className="space-y-4">
-              {[
-                { icon: '📄', title: 'Novo documento criado', time: 'Há 2 horas', color: 'red' },
-                { icon: '✏️', title: 'Processo atualizado', time: 'Há 4 horas', color: 'green' },
-                { icon: '👤', title: 'Novo usuário cadastrado', time: 'Há 6 horas', color: 'orange' },
-                { icon: '🔔', title: 'Notificação importante', time: 'Há 8 horas', color: 'purple' },
-              ].map((activity, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer border border-gray-100"
-                >
-                  <div className={`w-10 h-10 rounded-full bg-gradient-to-br from-primary-${activity.color}/20 to-primary-${activity.color}/10 flex items-center justify-center`}>
-                    <span className="text-xl">{activity.icon}</span>
+            /* Dashboard Principal com Notícias */
+            <div className="space-y-6">
+              {/* Card de Boas-vindas com Clima */}
+              <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl p-8">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                  <div>
+                    <h2 className="text-3xl font-bold mb-2">
+                      Olá, <span className="bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">{session.user?.name}</span>
+                    </h2>
+                    <p className="text-gray-600 text-lg">
+                      Bem-vindo ao Sistema Camaçari APP
+                    </p>
                   </div>
-                  <div className="flex-1">
-                    <h4 className="text-gray-800 font-medium">{activity.title}</h4>
-                    <p className="text-gray-600 text-sm">{activity.time}</p>
-                  </div>
+                  
+                  {/* Card de Clima */}
+                  {clima && (
+                    <div className="flex items-center gap-4 bg-gradient-to-br from-primary-orange/10 to-primary-red/10 border border-primary-orange/30 rounded-xl p-4 min-w-[280px]">
+                      <div className="text-center">
+                        <div className="text-5xl mb-2">
+                          {clima.descricao.includes('chuva') ? '🌧️' : 
+                           clima.descricao.includes('nuvem') ? '☁️' : 
+                           clima.descricao.includes('limpo') || clima.descricao.includes('sol') ? '☀️' : '🌤️'}
+                        </div>
+                        <p className="text-4xl font-bold text-gray-800">{clima.temperatura}°C</p>
+                      </div>
+                      <div className="border-l border-gray-300 pl-4">
+                        <p className="text-lg font-semibold text-gray-800 capitalize">{clima.descricao}</p>
+                        <p className="text-sm text-gray-600">Sensação: {clima.sensacao}°C</p>
+                        <p className="text-sm text-gray-600">Umidade: {clima.umidade}%</p>
+                        <p className="text-xs text-gray-500 mt-1">📍 {clima.cidade}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
 
-          {/* Seção de Ações Rápidas */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <button className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl p-6 hover:scale-105 transition-transform duration-300 text-left">
-              <div className="text-4xl mb-3">📝</div>
-              <h3 className="text-gray-800 font-semibold mb-2">Novo Documento</h3>
-              <p className="text-gray-600 text-sm">Criar novo documento no sistema</p>
-            </button>
-            <button className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl p-6 hover:scale-105 transition-transform duration-300 text-left">
-              <div className="text-4xl mb-3">🔍</div>
-              <h3 className="text-gray-800 font-semibold mb-2">Pesquisar</h3>
-              <p className="text-gray-600 text-sm">Buscar processos e documentos</p>
-            </button>
-            <button className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl p-6 hover:scale-105 transition-transform duration-300 text-left">
-              <div className="text-4xl mb-3">⚙️</div>
-              <h3 className="text-gray-800 font-semibold mb-2">Configurações</h3>
-              <p className="text-gray-600 text-sm">Ajustar preferências do sistema</p>
-            </button>
-          </div>
-          </>
+              {/* Seção de Notícias SEFAZ */}
+              <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">
+                    Notícias SEFAZ Camaçari
+                  </h2>
+                  <a 
+                    href="https://sefaz.camacari.ba.gov.br/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary-orange hover:text-primary-red transition-colors text-sm font-medium flex items-center gap-2"
+                  >
+                    Ver todas
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                </div>
+
+                {loadingNoticias ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-orange"></div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {noticias.map((noticia) => {
+                      return (
+                        <button
+                          key={noticia.id}
+                          onClick={() => router.push(`/noticia?url=${encodeURIComponent(noticia.url)}`)}
+                          className="group bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl hover:scale-105 transition-all duration-300 text-left"
+                        >
+                        <div className="p-6">
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="text-xs font-medium text-gray-500">
+                              📅 {noticia.date}
+                            </span>
+                          </div>
+                          <h3 className="text-lg font-bold text-gray-800 mb-2 group-hover:text-primary-orange transition-colors line-clamp-2">
+                            {noticia.title}
+                          </h3>
+                          <p className="text-gray-600 text-sm line-clamp-3">
+                            {noticia.excerpt}
+                          </p>
+                          <div className="mt-4 flex items-center text-primary-orange font-medium text-sm">
+                            Ler mais
+                            <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </div>
+                        </div>
+                      </button>
+                    )})}
+                  </div>
+                )}
+              </div>
+            </div>
           )}
         </main>
 
