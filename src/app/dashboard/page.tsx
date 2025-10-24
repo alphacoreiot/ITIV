@@ -4,6 +4,7 @@ import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
+import Chatbot from '@/components/Chatbot'
 
 export default function HomePage() {
   const { data: session, status } = useSession()
@@ -378,6 +379,9 @@ export default function HomePage() {
           </div>
         </footer>
       </div>
+
+      {/* Chatbot Flutuante */}
+      <Chatbot />
     </div>
   )
 }
