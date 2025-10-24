@@ -36,8 +36,32 @@ export default function Chatbot() {
     setInput('')
     setIsLoading(true)
 
+    // Adicionar mensagem de processamento imediatamente
+    const thinkingMsg: Message = {
+      role: 'assistant',
+      content: '🔍 Analisando sua pergunta...'
+    }
+    setMessages(prev => [...prev, thinkingMsg])
+
+    // Timeout de 60 segundos
+    const timeoutId = setTimeout(() => {
+      setIsLoading(false)
+      setMessages(prev => {
+        const lastMsg = prev[prev.length - 1]
+        if (lastMsg?.content?.includes('🔍')) {
+          return [...prev.slice(0, -1), {
+            role: 'assistant',
+            content: '⏱️ A consulta está demorando mais que o esperado. Tente novamente ou simplifique a pergunta.'
+          }]
+        }
+        return prev
+      })
+    }, 60000)
+
     try {
-      // Primeira chamada: obter SQL query
+      console.log('📤 Enviando pergunta:', userMessage.content)
+      
+      // Chamada única: o backend faz todo o trabalho
       const response = await fetch('/api/chatbot', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -46,74 +70,38 @@ export default function Chatbot() {
         })
       })
 
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
       const data = await response.json()
+      console.log('📥 Resposta recebida')
 
       if (data.error) {
         throw new Error(data.error)
       }
 
-      // Se precisa de consulta SQL
-      if (data.needsQuery && data.sqlQuery) {
-        // Adicionar mensagem de "consultando"
-        setMessages(prev => [...prev, {
-          role: 'assistant',
-          content: '🔍 Consultando banco de dados...'
-        }])
+      // Remover mensagem de "analisando"
+      setMessages(prev => prev.slice(0, -1))
 
-        // Executar query
-        const queryResponse = await fetch('/api/db-query', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: data.sqlQuery })
-        })
-
-        const queryResult = await queryResponse.json()
-
-        if (!queryResult.success) {
-          throw new Error('Erro ao consultar banco de dados')
-        }
-
-        // Remover mensagem de "consultando"
-        setMessages(prev => prev.slice(0, -1))
-
-        // Segunda chamada: formatar resposta com dados reais
-        const finalResponse = await fetch('/api/chatbot', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            messages: [...messages, userMessage],
-            queryResult: queryResult.rows
-          })
-        })
-
-        const finalData = await finalResponse.json()
-        
-        if (finalData.error) {
-          throw new Error(finalData.error)
-        }
-
-        setMessages(prev => [...prev, finalData.message])
-      } else {
-        // Resposta direta sem consulta
-        setMessages(prev => [...prev, data.message])
-      }
-    } catch (error) {
-      console.error('Erro ao enviar mensagem:', error)
+      // Adicionar resposta final
+      setMessages(prev => [...prev, data.message])
       
-      // Remover mensagem de "consultando" se existir
-      setMessages(prev => {
-        const lastMsg = prev[prev.length - 1]
-        if (lastMsg.content.includes('🔍 Consultando')) {
-          return prev.slice(0, -1)
-        }
-        return prev
-      })
+    } catch (error: any) {
+      console.error('❌ Erro ao enviar mensagem:', error)
+      console.error('📋 Detalhes:', error.message)
       
+      // Remover mensagem de processamento
+      setMessages(prev => prev.slice(0, -1))
+      
+      // Mostrar erro amigável
+      const errorMsg = error.message || 'Erro desconhecido'
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: '❌ Erro ao processar consulta. Verifique a conexão com o banco de dados.'
+        content: `❌ Desculpe, não consegui processar sua pergunta.\n\n${errorMsg.includes('HTTP') ? 'Erro de conexão com o servidor.' : errorMsg}\n\nPor favor, tente novamente.`
       }])
     } finally {
+      clearTimeout(timeoutId)
       setIsLoading(false)
     }
   }
@@ -161,7 +149,6 @@ export default function Chatbot() {
               </div>
               <div>
                 <h3 className="text-white font-bold">Especialista Tributário</h3>
-                <p className="text-white/80 text-xs">Gestão TFF e IPTU</p>
               </div>
             </div>
             <button
@@ -233,9 +220,6 @@ export default function Chatbot() {
                 </svg>
               </button>
             </div>
-            <p className="text-xs text-gray-500 mt-2 text-center">
-              Powered by OpenAI GPT-3.5 Turbo
-            </p>
           </div>
         </div>
       )}

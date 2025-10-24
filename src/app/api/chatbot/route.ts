@@ -62,18 +62,15 @@ tb_maiores_devedores_iptu_2025:
 - inscricao, entidade, contribuinte, tipo_lancamento
 - ano_base, vl_original, situacao_parcela
 
-QUANDO RECEBER UMA PERGUNTA:
-Responda com JSON contendo SQL para consultar dados reais:
-{
-  "needsQuery": true,
-  "sqlQuery": "SELECT ... FROM ... WHERE ..."
-}
-
-APÓS RECEBER OS DADOS:
-Formate resposta executiva:
-📊 [Números principais]
-📈 [Análise técnica]
-🎯 [Recomendação]
+COMPORTAMENTO IMPORTANTE:
+1. Quando receber uma pergunta SEM dados de consulta (queryResult vazio):
+   - Responda APENAS com JSON no formato: {"needsQuery": true, "sqlQuery": "SELECT..."}
+   - NÃO adicione texto antes ou depois do JSON
+   - NÃO explique o que vai fazer
+   
+2. Quando receber dados da consulta (queryResult preenchido):
+   - Formate resposta executiva com os dados reais
+   - Use o formato: 📊 [Números] 📈 [Análise] 🎯 [Recomendação]
 
 EXEMPLOS DE SQL:
 
@@ -140,69 +137,115 @@ Você é o especialista que CONSULTA e ANALISA dados reais.`
 
 export async function POST(request: Request) {
   try {
-    const { messages, queryResult } = await request.json()
+    console.log('📨 Recebendo requisição chatbot...')
+    
+    const { messages } = await request.json()
+
+    console.log('📝 Mensagens recebidas:', messages?.length || 0)
 
     if (!process.env.OPENAI_API_KEY) {
+      console.error('❌ OpenAI API key não configurada')
       return NextResponse.json(
         { error: 'OpenAI API key não configurada' },
         { status: 500 }
       )
     }
 
-    // Se já temos resultado da query, incluir no contexto
-    let systemPrompt = SYSTEM_PROMPT
-    if (queryResult) {
-      systemPrompt += `\n\nDADOS DA CONSULTA EXECUTADA:\n${JSON.stringify(queryResult, null, 2)}\n\nAgora formate a resposta baseada nestes dados REAIS.`
-    }
+    // ETAPA 1: Gerar SQL
+    console.log('🔍 Etapa 1: Gerando SQL...')
+    
+    const sqlPrompt = SYSTEM_PROMPT + `\n\n=== INSTRUÇÃO CRÍTICA ===
+Você DEVE responder APENAS com um objeto JSON válido.
+Nada mais, nada menos. ZERO texto adicional.
 
-    // Usar modelo econômico gpt-3.5-turbo com alta precisão
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+Formato EXATO:
+{"needsQuery": true, "sqlQuery": "SELECT ..."}
+
+NÃO escreva explicações. APENAS o JSON puro. Comece com { e termine com }`
+
+    const sqlCompletion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
       messages: [
-        {
-          role: 'system',
-          content: systemPrompt,
-        },
+        { role: 'system', content: sqlPrompt },
         ...messages,
       ],
-      temperature: 0.2,
-      max_tokens: 600,
-      presence_penalty: 0.1,
-      frequency_penalty: 0.1,
+      temperature: 0.0,
+      max_tokens: 300,
     })
 
-    const response = completion.choices[0].message
+    const sqlResponse = sqlCompletion.choices[0].message.content || ''
+    console.log('📄 Resposta SQL:', sqlResponse.substring(0, 100))
+
+    // Extrair SQL
+    const jsonMatch = sqlResponse.match(/\{[\s\S]*?"needsQuery"[\s\S]*?"sqlQuery"[\s\S]*?\}/)
     
-    // Verificar se a resposta contém uma solicitação de query SQL
-    let needsQuery = false
-    let sqlQuery = ''
-    
-    try {
-      // Tentar extrair JSON da resposta
-      const jsonMatch = response.content?.match(/\{[\s\S]*"needsQuery"[\s\S]*\}/)
-      if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[0])
-        if (parsed.needsQuery && parsed.sqlQuery) {
-          needsQuery = true
-          sqlQuery = parsed.sqlQuery
-        }
-      }
-    } catch (e) {
-      // Se não for JSON, continuar normal
+    if (!jsonMatch) {
+      console.error('❌ Não foi possível extrair SQL da resposta')
+      return NextResponse.json(
+        { error: 'Não foi possível gerar consulta SQL' },
+        { status: 500 }
+      )
     }
 
-    return NextResponse.json({ 
-      message: response,
-      needsQuery,
-      sqlQuery
+    const { sqlQuery } = JSON.parse(jsonMatch[0])
+    console.log('✅ SQL extraído:', sqlQuery.substring(0, 100) + '...')
+
+    // ETAPA 2: Executar SQL
+    console.log('🔍 Etapa 2: Executando consulta...')
+    
+    const { Pool } = await import('pg')
+    const pool = new Pool({
+      host: '10.0.20.61',
+      port: 5432,
+      database: 'metabase',
+      user: 'postgres',
+      password: 'CEnIg8shcyeF',
     })
+
+    const queryResult = await pool.query(sqlQuery)
+    await pool.end()
+    
+    console.log('✅ Consulta executada:', queryResult.rows.length, 'linhas')
+
+    // ETAPA 3: Formatar resposta
+    console.log('� Etapa 3: Formatando resposta...')
+    
+    const formatPrompt = SYSTEM_PROMPT + `\n\n=== DADOS DA CONSULTA ===
+${JSON.stringify(queryResult.rows, null, 2)}
+
+Formate uma resposta EXECUTIVA em linguagem natural.
+Use o formato:
+📊 [Números principais]
+📈 [Análise técnica]
+🎯 [Recomendação se aplicável]
+
+NÃO mencione SQL, tabelas ou termos técnicos.
+Responda como um especialista conversando com um gestor.`
+
+    const finalCompletion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: formatPrompt },
+        ...messages,
+      ],
+      temperature: 0.3,
+      max_tokens: 800,
+    })
+
+    const finalResponse = finalCompletion.choices[0].message
+    console.log('✅ Resposta formatada com sucesso')
+
+    return NextResponse.json({ message: finalResponse })
+
   } catch (error: any) {
     console.error('❌ Erro no chatbot:', error)
+    console.error('📋 Stack:', error.stack)
     
     return NextResponse.json(
       { 
         error: 'Erro ao processar mensagem',
-        details: error.message 
+        details: error.message,
+        type: error.name
       },
       { status: 500 }
     )
