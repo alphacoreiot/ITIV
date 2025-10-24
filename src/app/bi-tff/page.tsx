@@ -91,13 +91,13 @@ export default function BiTffPage() {
         <header className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg m-4 p-4 md:p-6 rounded-2xl">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-8">
-              <div className="relative w-auto h-24 cursor-pointer" onClick={() => router.push('/dashboard')}>
+              <div className="relative w-auto h-18 cursor-pointer" onClick={() => router.push('/dashboard')}>
                 <Image
                   src="/logo.png"
                   alt="ITIV Logo"
-                  width={200}
-                  height={96}
-                  className="object-contain h-24 w-auto"
+                  width={150}
+                  height={72}
+                  className="object-contain h-18 w-auto"
                   priority
                 />
               </div>
