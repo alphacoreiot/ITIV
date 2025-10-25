@@ -63,6 +63,7 @@ export default function HomePage() {
   const [cotacoes, setCotacoes] = useState<any>(null)
   const [loadingCotacoes, setLoadingCotacoes] = useState(true)
   const [fonteNoticias, setFonteNoticias] = useState<FonteNoticias>('bahia')
+  const [abaDados, setAbaDados] = useState<'refis' | 'news'>('refis')
   const [refisResumo, setRefisResumo] = useState<ResumoRefisResponse | null>(null)
   const [loadingRefis, setLoadingRefis] = useState(true)
   const [erroRefis, setErroRefis] = useState<string | null>(null)
@@ -510,277 +511,309 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Resumo REFIS 2025 */}
               <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl p-5 md:p-8">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 md:gap-4 mb-5 md:mb-6">
-                  <div>
-                    <h2 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">
-                      Resumo REFIS 2025
-                    </h2>
-                    <p className="text-sm md:text-base text-gray-600">Dados consolidados da tb_refis_2025</p>
+                <div className="flex justify-end">
+                  <div className="flex items-center gap-2 bg-gray-100 rounded-xl p-1">
+                    <button
+                      onClick={() => setAbaDados('refis')}
+                      className={`px-3 md:px-4 py-2 text-xs md:text-sm font-semibold rounded-lg transition-all duration-300 ${
+                        abaDados === 'refis'
+                          ? 'bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple text-white shadow'
+                          : 'bg-white text-gray-600 hover:text-gray-800'
+                      }`}
+                    >
+                      Resumo do REFIS
+                    </button>
+                    <button
+                      onClick={() => setAbaDados('news')}
+                      className={`px-3 md:px-4 py-2 text-xs md:text-sm font-semibold rounded-lg transition-all duration-300 ${
+                        abaDados === 'news'
+                          ? 'bg-gradient-to-r from-primary-purple via-primary-orange to-primary-red text-white shadow'
+                          : 'bg-white text-gray-600 hover:text-gray-800'
+                      }`}
+                    >
+                      Notícias
+                    </button>
                   </div>
-                  {refisResumo?.resumo && (
-                    <div className="text-xs md:text-sm text-gray-500">
-                      <p>Período: {formatDate(refisResumo.resumo.primeiraAdesao)} - {formatDate(refisResumo.resumo.ultimaAdesao)}</p>
-                    </div>
-                  )}
                 </div>
 
-                {loadingRefis ? (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-orange"></div>
-                  </div>
-                ) : erroRefis ? (
-                  <div className="py-10 text-center text-sm md:text-base text-red-500 font-medium">
-                    {erroRefis}
-                  </div>
-                ) : refisResumo ? (
-                  <div className="space-y-5 md:space-y-6">
-                    {quickResumoRefis.length > 0 && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
-                        {quickResumoRefis.map(item => (
-                          <div key={item.label} className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl p-4 md:p-5 shadow-sm">
-                            <p className="text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wide">{item.label}</p>
-                            <p className="text-xl md:text-2xl font-bold text-gray-800 mt-1">{item.value}</p>
-                            <p className="text-xs md:text-sm text-gray-500 mt-2">{item.helper}</p>
+                <div className="mt-5 md:mt-6">
+                  {abaDados === 'refis' ? (
+                    <>
+                      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 md:gap-4 mb-5 md:mb-6">
+                        <div>
+                          <h3 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">
+                            Resumo REFIS 2025
+                          </h3>
+                          <p className="text-sm md:text-base text-gray-600">Panorama atualizado dos acordos e da arrecadação do REFIS 2025</p>
+                        </div>
+                        {refisResumo?.resumo && (
+                          <div className="text-xs md:text-sm text-gray-500">
+                            <p>Período: {formatDate(refisResumo.resumo.primeiraAdesao)} - {formatDate(refisResumo.resumo.ultimaAdesao)}</p>
                           </div>
-                        ))}
+                        )}
                       </div>
-                    )}
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5">
-                      <div className="bg-gradient-to-br from-primary-orange/10 via-primary-red/5 to-white border border-primary-orange/30 rounded-xl p-4 md:p-5 shadow-sm">
-                        <h3 className="text-sm md:text-base font-semibold text-gray-800 mb-3">Situação dos Acordos</h3>
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-left text-xs md:text-sm text-gray-700">
-                            <thead>
-                              <tr className="border-b border-white/40">
-                                <th className="py-2 pr-2 font-medium">Status</th>
-                                <th className="py-2 pr-2 font-medium text-right">Quantidade</th>
-                                <th className="py-2 font-medium text-right">Valor negociado</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/40">
-                              {refisResumo.statusResumo.map(item => (
-                                <tr key={item.status}>
-                                  <td className="py-2 pr-2 font-semibold text-gray-800">{item.status}</td>
-                                  <td className="py-2 pr-2 text-right">{formatNumber(item.quantidade)}</td>
-                                  <td className="py-2 text-right">{formatCurrency(item.valorNegociado)}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
+                      {loadingRefis ? (
+                        <div className="flex items-center justify-center py-12">
+                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-orange"></div>
                         </div>
-                      </div>
-
-                      <div className="bg-gradient-to-br from-primary-purple/10 via-primary-orange/10 to-white border border-primary-purple/30 rounded-xl p-4 md:p-5 shadow-sm">
-                        <h3 className="text-sm md:text-base font-semibold text-gray-800 mb-3">Resumo Financeiro</h3>
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-left text-xs md:text-sm text-gray-700">
-                            <thead>
-                              <tr className="border-b border-white/40">
-                                <th className="py-2 pr-2 font-medium">Situação</th>
-                                <th className="py-2 pr-2 font-medium text-right">Quantidade</th>
-                                <th className="py-2 font-medium text-right">Valor</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/40">
-                              {refisResumo.statusFinanceiro.map(item => (
-                                <tr key={item.situacao}>
-                                  <td className="py-2 pr-2 font-semibold text-gray-800">{item.situacao}</td>
-                                  <td className="py-2 pr-2 text-right">{formatNumber(item.quantidade)}</td>
-                                  <td className="py-2 text-right">{formatCurrency(item.valorNegociado)}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
+                      ) : erroRefis ? (
+                        <div className="py-10 text-center text-sm md:text-base text-red-500 font-medium">
+                          {erroRefis}
                         </div>
-                      </div>
-
-                      <div className="bg-gradient-to-br from-primary-green/10 via-primary-orange/10 to-white border border-primary-green/30 rounded-xl p-4 md:p-5 shadow-sm">
-                        <h3 className="text-sm md:text-base font-semibold text-gray-800 mb-3">Faixa de Parcelamento</h3>
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-left text-xs md:text-sm text-gray-700">
-                            <thead>
-                              <tr className="border-b border-white/40">
-                                <th className="py-2 pr-2 font-medium">Faixa</th>
-                                <th className="py-2 pr-2 font-medium text-right">Quantidade</th>
-                                <th className="py-2 font-medium text-right">Valor negociado</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/40">
-                              {refisResumo.distribuicaoParcelas.map(item => (
-                                <tr key={item.faixa}>
-                                  <td className="py-2 pr-2 font-semibold text-gray-800">{item.faixa}</td>
-                                  <td className="py-2 pr-2 text-right">{formatNumber(item.quantidade)}</td>
-                                  <td className="py-2 text-right">{formatCurrency(item.valorNegociado)}</td>
-                                </tr>
+                      ) : refisResumo ? (
+                        <div className="space-y-5 md:space-y-6">
+                          {quickResumoRefis.length > 0 && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
+                              {quickResumoRefis.map(item => (
+                                <div key={item.label} className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl p-4 md:p-5 shadow-sm">
+                                  <p className="text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wide">{item.label}</p>
+                                  <p className="text-xl md:text-2xl font-bold text-gray-800 mt-1">{item.value}</p>
+                                  <p className="text-xs md:text-sm text-gray-500 mt-2">{item.helper}</p>
+                                </div>
                               ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
+                            </div>
+                          )}
 
-                      <div className="bg-gradient-to-br from-primary-red/10 via-primary-purple/10 to-white border border-primary-red/30 rounded-xl p-4 md:p-5 shadow-sm">
-                        <h3 className="text-sm md:text-base font-semibold text-gray-800 mb-3">Participação no Total</h3>
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-left text-xs md:text-sm text-gray-700">
-                            <thead>
-                              <tr className="border-b border-white/40">
-                                <th className="py-2 pr-2 font-medium">Categoria</th>
-                                <th className="py-2 pr-2 font-medium text-right">Quantidade</th>
-                                <th className="py-2 pr-2 font-medium text-right">Valor</th>
-                                <th className="py-2 font-medium text-right">Participação</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/40">
-                              {refisResumo.participacaoValores.map(item => (
-                                <tr key={item.categoria}>
-                                  <td className="py-2 pr-2 font-semibold text-gray-800">{item.categoria}</td>
-                                  <td className="py-2 pr-2 text-right">{formatNumber(item.quantidade)}</td>
-                                  <td className="py-2 pr-2 text-right">{formatCurrency(item.valorNegociado)}</td>
-                                  <td className="py-2 text-right font-semibold text-primary-purple">{formatPercent(item.percentual)}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
+                          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5">
+                            <div className="bg-gradient-to-br from-primary-orange/10 via-primary-red/5 to-white border border-primary-orange/30 rounded-xl p-4 md:p-5 shadow-sm">
+                              <h4 className="text-sm md:text-base font-semibold text-gray-800 mb-3">Situação dos Acordos</h4>
+                              <div className="overflow-x-auto">
+                                <table className="w-full text-left text-xs md:text-sm text-gray-700">
+                                  <thead>
+                                    <tr className="border-b border-white/40">
+                                      <th className="py-2 pr-2 font-medium">Status</th>
+                                      <th className="py-2 pr-2 font-medium text-right">Quantidade</th>
+                                      <th className="py-2 font-medium text-right">Valor negociado</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody className="divide-y divide-white/40">
+                                    {refisResumo.statusResumo.map(item => (
+                                      <tr key={item.status}>
+                                        <td className="py-2 pr-2 font-semibold text-gray-800">{item.status}</td>
+                                        <td className="py-2 pr-2 text-right">{formatNumber(item.quantidade)}</td>
+                                        <td className="py-2 text-right">{formatCurrency(item.valorNegociado)}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
 
-                      <div className="bg-gradient-to-br from-gray-50 via-white to-primary-orange/5 border border-gray-200 rounded-xl p-4 md:p-5 shadow-sm lg:col-span-2 xl:col-span-2">
-                        <h3 className="text-sm md:text-base font-semibold text-gray-800 mb-3">Top Contribuintes</h3>
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-left text-xs md:text-sm text-gray-700">
-                            <thead>
-                              <tr className="border-b border-gray-200/70">
-                                <th className="py-2 pr-2 font-medium">Contribuinte</th>
-                                <th className="py-2 pr-2 font-medium">CPF/CNPJ</th>
-                                <th className="py-2 pr-2 font-medium text-right">Acordos</th>
-                                <th className="py-2 font-medium text-right">Valor negociado</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200/70">
-                              {refisResumo.topContribuintes.map(item => (
-                                <tr key={`${item.contribuinte}-${item.cpfCnpj}`}>
-                                  <td className="py-2 pr-2 font-semibold text-gray-800">{item.contribuinte}</td>
-                                  <td className="py-2 pr-2 text-gray-600">{item.cpfCnpj}</td>
-                                  <td className="py-2 pr-2 text-right">{formatNumber(item.acordos)}</td>
-                                  <td className="py-2 text-right">{formatCurrency(item.valorNegociado)}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="py-10 text-center text-sm md:text-base text-gray-500">
-                    Nenhum dado do REFIS encontrado para exibir.
-                  </div>
-                )}
-              </div>
+                            <div className="bg-gradient-to-br from-primary-purple/10 via-primary-orange/10 to-white border border-primary-purple/30 rounded-xl p-4 md:p-5 shadow-sm">
+                              <h4 className="text-sm md:text-base font-semibold text-gray-800 mb-3">Resumo Financeiro</h4>
+                              <div className="overflow-x-auto">
+                                <table className="w-full text-left text-xs md:text-sm text-gray-700">
+                                  <thead>
+                                    <tr className="border-b border-white/40">
+                                      <th className="py-2 pr-2 font-medium">Situação</th>
+                                      <th className="py-2 pr-2 font-medium text-right">Quantidade</th>
+                                      <th className="py-2 font-medium text-right">Valor</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody className="divide-y divide-white/40">
+                                    {refisResumo.statusFinanceiro.map(item => (
+                                      <tr key={item.situacao}>
+                                        <td className="py-2 pr-2 font-semibold text-gray-800">{item.situacao}</td>
+                                        <td className="py-2 pr-2 text-right">{formatNumber(item.quantidade)}</td>
+                                        <td className="py-2 text-right">{formatCurrency(item.valorNegociado)}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
 
-              {/* Seção de Notícias */}
-              <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl p-5 md:p-8">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 mb-5 md:mb-6">
-                  <h2 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">
-                    Notícias
-                  </h2>
-                  <div className="flex items-center gap-2 bg-gray-100 rounded-xl p-1 w-fit flex-wrap">
-                    {(['bahia', 'agencia'] as FonteNoticias[]).map(fonte => {
-                      const isActive = fonteNoticias === fonte
-                      const label = fonte === 'bahia' ? 'Governo da Bahia' : 'Agência Brasil Economia'
-                      return (
-                        <button
-                          key={fonte}
-                          onClick={() => setFonteNoticias(fonte)}
-                          className={`px-3 py-1 text-xs md:text-sm font-medium rounded-lg transition-all ${
-                            isActive ? 'bg-white text-primary-orange shadow' : 'text-gray-600 hover:text-gray-800'
-                          }`}
+                            <div className="bg-gradient-to-br from-primary-green/10 via-primary-orange/10 to-white border border-primary-green/30 rounded-xl p-4 md:p-5 shadow-sm">
+                              <h4 className="text-sm md:text-base font-semibold text-gray-800 mb-3">Faixa de Parcelamento</h4>
+                              <div className="overflow-x-auto">
+                                <table className="w-full text-left text-xs md:text-sm text-gray-700">
+                                  <thead>
+                                    <tr className="border-b border-white/40">
+                                      <th className="py-2 pr-2 font-medium">Faixa</th>
+                                      <th className="py-2 pr-2 font-medium text-right">Quantidade</th>
+                                      <th className="py-2 font-medium text-right">Valor negociado</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody className="divide-y divide-white/40">
+                                    {refisResumo.distribuicaoParcelas.map(item => (
+                                      <tr key={item.faixa}>
+                                        <td className="py-2 pr-2 font-semibold text-gray-800">{item.faixa}</td>
+                                        <td className="py-2 pr-2 text-right">{formatNumber(item.quantidade)}</td>
+                                        <td className="py-2 text-right">{formatCurrency(item.valorNegociado)}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+
+                            <div className="bg-gradient-to-br from-primary-red/10 via-primary-purple/10 to-white border border-primary-red/30 rounded-xl p-4 md:p-5 shadow-sm">
+                              <h4 className="text-sm md:text-base font-semibold text-gray-800 mb-3">Participação no Total</h4>
+                              <div className="overflow-x-auto">
+                                <table className="w-full text-left text-xs md:text-sm text-gray-700">
+                                  <thead>
+                                    <tr className="border-b border-white/40">
+                                      <th className="py-2 pr-2 font-medium">Categoria</th>
+                                      <th className="py-2 pr-2 font-medium text-right">Quantidade</th>
+                                      <th className="py-2 pr-2 font-medium text-right">Valor</th>
+                                      <th className="py-2 font-medium text-right">Participação</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody className="divide-y divide-white/40">
+                                    {refisResumo.participacaoValores.map(item => (
+                                      <tr key={item.categoria}>
+                                        <td className="py-2 pr-2 font-semibold text-gray-800">{item.categoria}</td>
+                                        <td className="py-2 pr-2 text-right">{formatNumber(item.quantidade)}</td>
+                                        <td className="py-2 pr-2 text-right">{formatCurrency(item.valorNegociado)}</td>
+                                        <td className="py-2 text-right font-semibold text-primary-purple">{formatPercent(item.percentual)}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+
+                            <div className="bg-gradient-to-br from-gray-50 via-white to-primary-orange/5 border border-gray-200 rounded-xl p-4 md:p-5 shadow-sm lg:col-span-2 xl:col-span-2">
+                              <h4 className="text-sm md:text-base font-semibold text-gray-800 mb-3">Top Contribuintes</h4>
+                              <div className="overflow-x-auto">
+                                <table className="w-full text-left text-xs md:text-sm text-gray-700">
+                                  <thead>
+                                    <tr className="border-b border-gray-200/70">
+                                      <th className="py-2 pr-2 font-medium">Contribuinte</th>
+                                      <th className="py-2 pr-2 font-medium">CPF/CNPJ</th>
+                                      <th className="py-2 pr-2 font-medium text-right">Acordos</th>
+                                      <th className="py-2 font-medium text-right">Valor negociado</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody className="divide-y divide-gray-200/70">
+                                    {refisResumo.topContribuintes.map(item => (
+                                      <tr key={`${item.contribuinte}-${item.cpfCnpj}`}>
+                                        <td className="py-2 pr-2 font-semibold text-gray-800">{item.contribuinte}</td>
+                                        <td className="py-2 pr-2 text-gray-600">{item.cpfCnpj}</td>
+                                        <td className="py-2 pr-2 text-right">{formatNumber(item.acordos)}</td>
+                                        <td className="py-2 text-right">{formatCurrency(item.valorNegociado)}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="py-10 text-center text-sm md:text-base text-gray-500">
+                          Nenhum dado do REFIS encontrado para exibir.
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 mb-5 md:mb-6">
+                        <div>
+                          <h3 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">
+                            Notícias
+                          </h3>
+                          <p className="text-sm md:text-base text-gray-600">Acompanhe as principais informações em tempo real.</p>
+                        </div>
+                        <div className="flex items-center gap-2 bg-gray-100 rounded-xl p-1 w-fit flex-wrap">
+                          {(['bahia', 'agencia'] as FonteNoticias[]).map(fonte => {
+                            const isActive = fonteNoticias === fonte
+                            const label = fonte === 'bahia' ? 'Governo da Bahia' : 'Agência Brasil Economia'
+                            return (
+                              <button
+                                key={fonte}
+                                onClick={() => setFonteNoticias(fonte)}
+                                className={`px-3 py-1 text-xs md:text-sm font-medium rounded-lg transition-all ${
+                                  isActive ? 'bg-white text-primary-orange shadow' : 'text-gray-600 hover:text-gray-800'
+                                }`}
+                              >
+                                {label}
+                              </button>
+                            )
+                          })}
+                        </div>
+                        <a
+                          href={fonteNoticias === 'bahia' ? 'https://www.ba.gov.br/comunicacao/noticias' : 'https://agenciabrasil.ebc.com.br/economia'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary-orange hover:text-primary-red transition-colors text-xs md:text-sm font-medium flex items-center gap-2 md:ml-auto"
                         >
-                          {label}
-                        </button>
-                      )
-                    })}
-                  </div>
-                  <a
-                    href={fonteNoticias === 'bahia' ? 'https://www.ba.gov.br/comunicacao/noticias' : 'https://agenciabrasil.ebc.com.br/economia'}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary-orange hover:text-primary-red transition-colors text-xs md:text-sm font-medium flex items-center gap-2 md:ml-auto"
-                  >
-                    Ver todas
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </a>
-                </div>
-
-                {loadingNoticias ? (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-orange"></div>
-                  </div>
-                ) : (() => {
-                  const noticiasAtuais = fonteNoticias === 'bahia' ? noticias.bahia : noticias.agencia
-
-                  if (!noticiasAtuais || noticiasAtuais.length === 0) {
-                    return (
-                      <div className="py-12 text-center text-gray-500">
-                        Não foi possível carregar notícias no momento.
+                          Ver todas
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </a>
                       </div>
-                    )
-                  }
 
-                  return (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                      {noticiasAtuais.slice(0, 6).map((noticia: any) => {
-                        const imageSrc = noticia.image && noticia.image !== '' ? noticia.image : '/logo.png'
-                        const sourceLabel = noticia.source === 'bahia' ? 'Governo da Bahia' : 'Agência Brasil'
+                      {loadingNoticias ? (
+                        <div className="flex items-center justify-center py-12">
+                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-orange"></div>
+                        </div>
+                      ) : (() => {
+                        const noticiasAtuais = fonteNoticias === 'bahia' ? noticias.bahia : noticias.agencia
+
+                        if (!noticiasAtuais || noticiasAtuais.length === 0) {
+                          return (
+                            <div className="py-12 text-center text-gray-500">
+                              Não foi possível carregar notícias no momento.
+                            </div>
+                          )
+                        }
 
                         return (
-                          <button
-                            key={noticia.url}
-                            onClick={() => router.push(`/noticia?url=${encodeURIComponent(noticia.url)}&fonte=${noticia.source}`)}
-                            className="group bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-left"
-                          >
-                            <div className="relative h-36 md:h-40 w-full overflow-hidden">
-                              <Image
-                                src={imageSrc}
-                                alt={noticia.title}
-                                fill
-                                className="object-cover transition-transform duration-500 group-hover:scale-110"
-                              />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-                              <div className="absolute bottom-2 left-3 flex items-center gap-2 text-xs font-medium text-white/90">
-                                <span className="px-2 py-0.5 bg-white/20 rounded-full backdrop-blur-sm">
-                                  {sourceLabel}
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  📅 {noticia.date}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="p-5 md:p-6">
-                              <h3 className="text-base md:text-lg font-bold text-gray-800 mb-2.5 md:mb-3 line-clamp-2 group-hover:text-primary-orange transition-colors">
-                                {noticia.title}
-                              </h3>
-                              <p className="text-gray-600 text-sm line-clamp-3 mb-3 md:mb-4">
-                                {noticia.excerpt}
-                              </p>
-                              <div className="mt-auto flex items-center text-primary-orange font-medium text-xs md:text-sm">
-                                Ler mais
-                                <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
-                              </div>
-                            </div>
-                          </button>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                            {noticiasAtuais.slice(0, 6).map((noticia: any) => {
+                              const imageSrc = noticia.image && noticia.image !== '' ? noticia.image : '/logo.png'
+                              const sourceLabel = noticia.source === 'bahia' ? 'Governo da Bahia' : 'Agência Brasil'
+
+                              return (
+                                <button
+                                  key={noticia.url}
+                                  onClick={() => router.push(`/noticia?url=${encodeURIComponent(noticia.url)}&fonte=${noticia.source}`)}
+                                  className="group bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-left"
+                                >
+                                  <div className="relative h-36 md:h-40 w-full overflow-hidden">
+                                    <Image
+                                      src={imageSrc}
+                                      alt={noticia.title}
+                                      fill
+                                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                                    <div className="absolute bottom-2 left-3 flex items-center gap-2 text-xs font-medium text-white/90">
+                                      <span className="px-2 py-0.5 bg-white/20 rounded-full backdrop-blur-sm">
+                                        {sourceLabel}
+                                      </span>
+                                      <span className="flex items-center gap-1">
+                                        📅 {noticia.date}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="p-5 md:p-6">
+                                    <h4 className="text-base md:text-lg font-bold text-gray-800 mb-2.5 md:mb-3 line-clamp-2 group-hover:text-primary-orange transition-colors">
+                                      {noticia.title}
+                                    </h4>
+                                    <p className="text-gray-600 text-sm line-clamp-3 mb-3 md:mb-4">
+                                      {noticia.excerpt}
+                                    </p>
+                                    <div className="mt-auto flex items-center text-primary-orange font-medium text-xs md:text-sm">
+                                      Ler mais
+                                      <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                      </svg>
+                                    </div>
+                                  </div>
+                                </button>
+                              )
+                            })}
+                          </div>
                         )
-                      })}
-                    </div>
-                  )
-                })()}
+                      })()}
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           )}
