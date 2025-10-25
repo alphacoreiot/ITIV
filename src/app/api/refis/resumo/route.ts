@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import type { ResumoRefisResponse } from '@/types/dashboard'
 
 export async function GET() {
   try {
@@ -111,20 +112,31 @@ export async function GET() {
         LIMIT 5
       `)
 
-      return NextResponse.json({
+      const resumoRow = resumoGeral.rows[0] ?? {}
+
+      const toIsoString = (value: unknown) => {
+        if (!value) return null
+        if (value instanceof Date) {
+          return Number.isNaN(value.getTime()) ? null : value.toISOString()
+        }
+        const date = new Date(value as string)
+        return Number.isNaN(date.getTime()) ? null : date.toISOString()
+      }
+
+      return NextResponse.json<ResumoRefisResponse>({
         success: true,
         resumo: {
-          totalRegistros: Number(resumoGeral.rows[0]?.total_registros ?? 0),
-          valorTotal: Number(resumoGeral.rows[0]?.valor_total ?? 0),
-          valorArrecadado: Number(resumoGeral.rows[0]?.valor_arrecadado ?? 0),
-          valorEmAberto: Number(resumoGeral.rows[0]?.valor_em_aberto ?? 0),
-          parcelasTotais: Number(resumoGeral.rows[0]?.parcelas_totais ?? 0),
-          parcelasPagas: Number(resumoGeral.rows[0]?.parcelas_pagas ?? 0),
-          parcelasAbertas: Number(resumoGeral.rows[0]?.parcelas_abertas ?? 0),
-          acordosAtivos: Number(resumoGeral.rows[0]?.acordos_ativos ?? 0),
-          acordosEmRisco: Number(resumoGeral.rows[0]?.acordos_em_risco ?? 0),
-          ultimaAdesao: resumoGeral.rows[0]?.ultima_adesao ?? null,
-          primeiraAdesao: resumoGeral.rows[0]?.primeira_adesao ?? null
+          totalRegistros: Number(resumoRow?.total_registros ?? 0),
+          valorTotal: Number(resumoRow?.valor_total ?? 0),
+          valorArrecadado: Number(resumoRow?.valor_arrecadado ?? 0),
+          valorEmAberto: Number(resumoRow?.valor_em_aberto ?? 0),
+          parcelasTotais: Number(resumoRow?.parcelas_totais ?? 0),
+          parcelasPagas: Number(resumoRow?.parcelas_pagas ?? 0),
+          parcelasAbertas: Number(resumoRow?.parcelas_abertas ?? 0),
+          acordosAtivos: Number(resumoRow?.acordos_ativos ?? 0),
+          acordosEmRisco: Number(resumoRow?.acordos_em_risco ?? 0),
+          ultimaAdesao: toIsoString(resumoRow?.ultima_adesao),
+          primeiraAdesao: toIsoString(resumoRow?.primeira_adesao)
         },
         statusResumo: statusResumo.rows.map(row => ({
           status: row.status_label,

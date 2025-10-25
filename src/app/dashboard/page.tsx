@@ -6,61 +6,23 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Chatbot from '@/components/Chatbot'
 import AppHeader from '@/components/AppHeader'
-
-type FonteNoticias = 'bahia' | 'agencia'
-
-type ResumoRefisResponse = {
-  success: boolean
-  resumo: {
-    totalRegistros: number
-    valorTotal: number
-    valorArrecadado: number
-    valorEmAberto: number
-    parcelasTotais: number
-    parcelasPagas: number
-    parcelasAbertas: number
-    acordosAtivos: number
-    acordosEmRisco: number
-    ultimaAdesao: string | null
-    primeiraAdesao: string | null
-  }
-  statusResumo: Array<{
-    status: string
-    quantidade: number
-    valorNegociado: number
-  }>
-  distribuicaoParcelas: Array<{
-    faixa: string
-    quantidade: number
-    valorNegociado: number
-  }>
-  statusFinanceiro: Array<{
-    situacao: string
-    quantidade: number
-    valorNegociado: number
-  }>
-  participacaoValores: Array<{
-    categoria: string
-    quantidade: number
-    valorNegociado: number
-    percentual: number
-  }>
-  topContribuintes: Array<{
-    contribuinte: string
-    cpfCnpj: string
-    acordos: number
-    valorNegociado: number
-  }>
-}
+import type {
+  ClimaResponse,
+  CotacoesResponse,
+  FonteNoticias,
+  NoticiaItem,
+  NoticiasResponse,
+  ResumoRefisResponse
+} from '@/types/dashboard'
 
 export default function HomePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [showBIPanels, setShowBIPanels] = useState(false)
-  const [noticias, setNoticias] = useState<{ bahia: any[]; agencia: any[] }>({ bahia: [], agencia: [] })
+  const [noticias, setNoticias] = useState<Record<FonteNoticias, NoticiaItem[]>>({ bahia: [], agencia: [] })
   const [loadingNoticias, setLoadingNoticias] = useState(true)
-  const [clima, setClima] = useState<any>(null)
-  const [cotacoes, setCotacoes] = useState<any>(null)
+  const [clima, setClima] = useState<ClimaResponse | null>(null)
+  const [cotacoes, setCotacoes] = useState<CotacoesResponse | null>(null)
   const [loadingCotacoes, setLoadingCotacoes] = useState(true)
   const [fonteNoticias, setFonteNoticias] = useState<FonteNoticias>('bahia')
   const [abaDados, setAbaDados] = useState<'refis' | 'news'>('refis')
@@ -77,19 +39,16 @@ export default function HomePage() {
   useEffect(() => {
     // Buscar clima de Camaçari
     fetch('/api/clima')
-      .then(res => res.json())
+      .then(res => res.json() as Promise<ClimaResponse>)
       .then(data => setClima(data))
       .catch(err => console.error('Erro ao carregar clima:', err))
   }, [])
 
   useEffect(() => {
     fetch('/api/noticias')
-      .then(res => res.json())
+      .then(res => res.json() as Promise<NoticiasResponse>)
       .then(data => {
-        setNoticias({
-          bahia: data?.noticias?.bahia || [],
-          agencia: data?.noticias?.agencia || []
-        })
+        setNoticias(data.noticias)
         setLoadingNoticias(false)
       })
       .catch(err => {
@@ -101,7 +60,7 @@ export default function HomePage() {
 
   useEffect(() => {
     fetch('/api/cotacoes')
-      .then(res => res.json())
+      .then(res => res.json() as Promise<CotacoesResponse>)
       .then(data => {
         setCotacoes(data)
         setLoadingCotacoes(false)
@@ -116,8 +75,8 @@ export default function HomePage() {
   useEffect(() => {
     setLoadingRefis(true)
     fetch('/api/refis/resumo')
-      .then(res => res.json())
-      .then((data: ResumoRefisResponse) => {
+      .then(res => res.json() as Promise<ResumoRefisResponse>)
+      .then(data => {
         if (data?.success) {
           setRefisResumo(data)
           setErroRefis(null)
@@ -161,6 +120,8 @@ export default function HomePage() {
   if (!session) {
     return null
   }
+
+  const climaDescricao = clima?.descricao?.toLowerCase() ?? ''
 
   const formatCotacaoHora = (iso?: string) => {
     if (!iso) return '-'
@@ -359,9 +320,9 @@ export default function HomePage() {
                         <div className="flex items-center gap-3 bg-gradient-to-br from-primary-orange/10 to-primary-red/10 border border-primary-orange/30 rounded-xl p-3 md:p-4 min-w-[200px] md:min-w-[230px]">
                           <div className="text-center">
                             <div className="text-3xl md:text-4xl mb-1">
-                              {clima.descricao.includes('chuva') ? '🌧️' :
-                               clima.descricao.includes('nuvem') ? '☁️' :
-                               clima.descricao.includes('limpo') || clima.descricao.includes('sol') ? '☀️' : '🌤️'}
+                              {climaDescricao.includes('chuva') ? '🌧️' :
+                               climaDescricao.includes('nuvem') ? '☁️' :
+                               climaDescricao.includes('limpo') || climaDescricao.includes('sol') ? '☀️' : '🌤️'}
                             </div>
                             <p className="text-2xl md:text-3xl font-bold text-gray-800">{clima.temperatura}°C</p>
                           </div>
@@ -391,15 +352,15 @@ export default function HomePage() {
                               label: 'Euro',
                               dados: cotacoes.euro
                             }].map(({ label, dados }) => {
-                              const variacao = Number(dados.variacao ?? dados.percentual ?? 0)
-                              const variacaoPositiva = Number.isFinite(variacao) ? variacao >= 0 : true
-                              const percentualValor = Number(dados.percentual ?? dados.porcentagem ?? variacao)
-                              const valorVenda = Number(dados.venda ?? dados.preco ?? dados.compra ?? 0)
-                              const valorCompra = Number(dados.compra ?? dados.venda ?? dados.preco ?? 0)
+                              const variacao = Number.isFinite(dados.variacao) ? dados.variacao : 0
+                              const variacaoPositiva = variacao >= 0
+                              const percentualValor = Number.isFinite(dados.percentual) ? dados.percentual : variacao
+                              const valorVenda = Number.isFinite(dados.venda) ? dados.venda : dados.compra
+                              const valorCompra = Number.isFinite(dados.compra) ? dados.compra : dados.venda
 
-                              const percentualFormatado = Number.isFinite(percentualValor) ? percentualValor.toFixed(2) : '0.00'
-                              const valorVendaFormatado = Number.isFinite(valorVenda) ? valorVenda.toFixed(2) : '0.00'
-                              const valorCompraFormatado = Number.isFinite(valorCompra) ? valorCompra.toFixed(2) : '0.00'
+                              const percentualFormatado = percentualValor.toFixed(2)
+                              const valorVendaFormatado = valorVenda.toFixed(2)
+                              const valorCompraFormatado = valorCompra.toFixed(2)
 
                               return (
                                 <div key={label} className="bg-white/70 rounded-lg p-2.5 md:p-3 shadow-sm">
@@ -626,10 +587,9 @@ export default function HomePage() {
                           <h3 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">
                             Notícias
                           </h3>
-                          <p className="text-sm md:text-base text-gray-600">Acompanhe as principais informações em tempo real.</p>
                         </div>
                         <div className="flex items-center gap-2 bg-gray-100 rounded-xl p-1 w-fit flex-wrap">
-                          {(['bahia', 'agencia'] as FonteNoticias[]).map(fonte => {
+                            {(['bahia', 'agencia'] as FonteNoticias[]).map(fonte => {
                             const isActive = fonteNoticias === fonte
                             const label = fonte === 'bahia' ? 'Governo da Bahia' : 'Agência Brasil Economia'
                             return (
@@ -667,7 +627,7 @@ export default function HomePage() {
                           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-orange"></div>
                         </div>
                       ) : (() => {
-                        const noticiasAtuais = fonteNoticias === 'bahia' ? noticias.bahia : noticias.agencia
+                        const noticiasAtuais: NoticiaItem[] = fonteNoticias === 'bahia' ? noticias.bahia : noticias.agencia
 
                         if (!noticiasAtuais || noticiasAtuais.length === 0) {
                           return (
@@ -679,7 +639,7 @@ export default function HomePage() {
 
                         return (
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                            {noticiasAtuais.slice(0, 6).map((noticia: any) => {
+                            {noticiasAtuais.slice(0, 6).map((noticia: NoticiaItem) => {
                               const imageSrc = noticia.image && noticia.image !== '' ? noticia.image : '/logo.png'
                               const sourceLabel = noticia.source === 'bahia' ? 'Governo da Bahia' : 'Agência Brasil'
 

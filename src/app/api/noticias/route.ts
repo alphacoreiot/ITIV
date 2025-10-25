@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import * as cheerio from 'cheerio'
+import type { FonteNoticias, NoticiaItem, NoticiasResponse } from '@/types/dashboard'
 
-type FeedKey = 'bahia' | 'agencia'
+type FeedKey = FonteNoticias
 
 const FEEDS: Record<FeedKey, {
   url: string
@@ -28,7 +29,7 @@ export async function GET() {
     loadFeed('agencia')
   ])
 
-  return NextResponse.json({
+  return NextResponse.json<NoticiasResponse>({
     noticias: {
       bahia: bahiaNoticias,
       agencia: agenciaNoticias
@@ -36,7 +37,7 @@ export async function GET() {
   })
 }
 
-async function loadFeed(feedKey: FeedKey) {
+async function loadFeed(feedKey: FeedKey): Promise<NoticiaItem[]> {
   const config = FEEDS[feedKey]
   try {
     const response = await fetch(config.url, {
@@ -52,7 +53,7 @@ async function loadFeed(feedKey: FeedKey) {
 
     const xml = await response.text()
     const $ = cheerio.load(xml, { xmlMode: true })
-    const noticias: any[] = []
+    const noticias: NoticiaItem[] = []
 
     const entries = $('item').length ? $('item') : $('entry')
 
@@ -62,7 +63,7 @@ async function loadFeed(feedKey: FeedKey) {
       const $item = $(element)
       const title = getFirstText($item, ['title'])
       const url = getFirstLink($item) || getFirstText($item, ['guid'])
-  const descriptionHtml = getFirstText($item, ['description', 'content\:encoded', 'content', 'summary'])
+      const descriptionHtml = getFirstText($item, ['description', 'content\:encoded', 'content', 'summary'])
 
       let descriptionText = ''
       if (descriptionHtml) {
@@ -164,7 +165,7 @@ function resolveImageUrl($item: cheerio.Cheerio, descriptionHtml: string, baseIm
   return image
 }
 
-function buildFallback(feedKey: FeedKey) {
+function buildFallback(feedKey: FeedKey): NoticiaItem {
   const config = FEEDS[feedKey]
   return {
     id: 1,

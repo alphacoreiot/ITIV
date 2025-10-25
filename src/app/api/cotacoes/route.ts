@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import type { CotacaoNormalizada, CotacoesResponse } from '@/types/dashboard'
 
 type AwesomeApiQuote = {
   code: string
@@ -9,16 +10,6 @@ type AwesomeApiQuote = {
   varBid: string
   pctChange: string
   timestamp: string
-}
-
-type CotacaoNormalizada = {
-  codigo: string
-  moeda: string
-  compra: number
-  venda: number
-  variacao: number
-  percentual: number
-  atualizadoEm: string
 }
 
 const parseQuote = (quote: AwesomeApiQuote): CotacaoNormalizada => {
@@ -53,7 +44,7 @@ export async function GET() {
       throw new Error('Resposta incompleta da API de cotações')
     }
 
-    return NextResponse.json({
+    return NextResponse.json<CotacoesResponse>({
       dolar: parseQuote(dolar),
       euro: parseQuote(euro)
     })
@@ -63,7 +54,7 @@ export async function GET() {
     const agora = new Date()
     const fallbackAtualizado = new Date(agora.getTime() - 60 * 60 * 1000).toISOString()
 
-    return NextResponse.json({
+    return NextResponse.json<CotacoesResponse>({
       dolar: {
         codigo: 'USD/BRL',
         moeda: 'Dólar Comercial',
