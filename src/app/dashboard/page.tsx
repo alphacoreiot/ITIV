@@ -155,16 +155,16 @@ export default function HomePage() {
 
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* Header */}
-        <header className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg m-4 p-4 md:p-6 rounded-2xl">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center justify-between w-full md:w-auto gap-8">
-              <div className="relative w-auto h-18">
+        <header className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg m-3 md:m-4 p-3 md:p-6 rounded-2xl">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4">
+            <div className="flex items-center justify-between w-full md:w-auto gap-4 md:gap-8">
+              <div className="relative w-auto h-16 md:h-18">
                 <Image
                   src="/logo.png"
                   alt="ITIV Logo"
-                  width={150}
-                  height={72}
-                  className="object-contain h-18 w-auto"
+                  width={135}
+                  height={64}
+                  className="object-contain h-16 md:h-18 w-auto"
                   priority
                 />
               </div>
@@ -173,13 +173,13 @@ export default function HomePage() {
               <nav className="hidden md:flex items-center gap-2">
                 <button
                   onClick={() => setShowBIPanels(!showBIPanels)}
-                  className={`flex items-center gap-2 px-4 py-2 font-medium transition-all rounded-lg ${
+                  className={`flex items-center gap-2 px-3 lg:px-4 py-2 text-sm lg:text-base font-medium transition-all rounded-lg ${
                     showBIPanels 
                       ? 'bg-gradient-to-r from-primary-red/10 via-primary-orange/10 to-primary-purple/10 text-gray-900 border-b-2 border-primary-orange' 
                       : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
                   }`}
                 >
-                  <span className="text-lg">📊</span>
+                  <span className="text-base lg:text-lg">📊</span>
                   <span>Painéis do B.I.</span>
                 </button>
               </nav>
@@ -201,14 +201,14 @@ export default function HomePage() {
             
             {/* Info Usuário Desktop */}
             {/* Info Usuário Desktop */}
-            <div className="hidden md:flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-3 lg:gap-4">
               <div className="text-right">
-                <p className="text-gray-800 font-medium">{session.user?.name}</p>
-                <p className="text-gray-600 text-sm">{session.user?.email}</p>
+                <p className="text-gray-800 font-medium text-sm lg:text-base">{session.user?.name}</p>
+                <p className="text-gray-600 text-xs lg:text-sm">{session.user?.email}</p>
               </div>
               <button
                 onClick={() => signOut({ callbackUrl: '/login' })}
-                className="px-4 py-2 bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple text-white font-semibold rounded-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
+                className="px-3 lg:px-4 py-2 bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple text-white font-semibold rounded-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
               >
                 Sair
               </button>
@@ -217,32 +217,32 @@ export default function HomePage() {
 
           {/* Menu Mobile Dropdown */}
           {mobileMenuOpen && (
-            <div className="md:hidden mt-4 pt-4 border-t border-gray-200">
+            <div className="md:hidden mt-3 pt-3 border-t border-gray-200">
               <nav className="space-y-2">
                 <button
                   onClick={() => {
                     setShowBIPanels(!showBIPanels)
                     setMobileMenuOpen(false)
                   }}
-                  className={`w-full flex items-center gap-2 px-4 py-3 font-medium transition-all rounded-lg ${
+                  className={`w-full flex items-center gap-2 px-3 py-3 text-sm font-medium transition-all rounded-lg ${
                     showBIPanels 
                       ? 'bg-gradient-to-r from-primary-red/10 via-primary-orange/10 to-primary-purple/10 text-gray-900 border-l-4 border-primary-orange' 
                       : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >
-                  <span className="text-lg">📊</span>
+                  <span className="text-base">📊</span>
                   <span>Painéis do B.I.</span>
                 </button>
               </nav>
               
-              <div className="mt-4 pt-4 border-t border-gray-200">
+              <div className="mt-3 pt-3 border-t border-gray-200">
                 <div className="mb-3">
                   <p className="text-gray-800 font-medium text-sm">{session.user?.name}</p>
                   <p className="text-gray-600 text-xs">{session.user?.email}</p>
                 </div>
                 <button
                   onClick={() => signOut({ callbackUrl: '/login' })}
-                  className="w-full px-4 py-2 bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple text-white font-semibold rounded-lg hover:shadow-xl transition-all duration-300"
+                  className="w-full px-3 py-2 bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple text-white font-semibold rounded-lg hover:shadow-xl transition-all duration-300"
                 >
                   Sair
                 </button>
@@ -252,26 +252,26 @@ export default function HomePage() {
         </header>
 
         {/* Main Content */}
-        <main className="p-4 md:p-6 flex-1">
+        <main className="p-3 md:p-6 flex-1">
           {showBIPanels ? (
             /* Painéis do B.I. */
-            <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl p-8">
-              <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">
+            <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl p-5 md:p-8">
+              <h2 className="text-xl md:text-2xl font-bold mb-5 md:mb-6 bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">
                 Painéis do B.I.
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 {/* Card BI IPTU */}
                 <button 
                   onClick={() => router.push('/bi-iptu')}
-                  className="bg-gradient-to-br from-primary-red/10 to-primary-orange/10 border-2 border-primary-red/20 rounded-xl p-8 hover:scale-105 transition-transform duration-300 cursor-pointer text-left"
+                  className="bg-gradient-to-br from-primary-red/10 to-primary-orange/10 border-2 border-primary-red/20 rounded-xl p-5 md:p-7 hover:scale-105 transition-transform duration-300 cursor-pointer text-left"
                 >
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-primary-red/30 to-primary-red/20 flex items-center justify-center">
-                      <span className="text-3xl">🏘️</span>
+                  <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
+                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-lg bg-gradient-to-br from-primary-red/30 to-primary-red/20 flex items-center justify-center">
+                      <span className="text-2xl md:text-3xl">🏘️</span>
                     </div>
-                    <h3 className="text-3xl font-bold text-gray-800">BI IPTU</h3>
+                    <h3 className="text-2xl md:text-3xl font-bold text-gray-800">BI IPTU</h3>
                   </div>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 text-sm md:text-base">
                     Business Intelligence para análise de dados do IPTU
                   </p>
                 </button>
@@ -279,15 +279,15 @@ export default function HomePage() {
                 {/* Card BI TFF */}
                 <button 
                   onClick={() => router.push('/bi-tff')}
-                  className="bg-gradient-to-br from-primary-green/10 to-primary-orange/10 border-2 border-primary-green/20 rounded-xl p-8 hover:scale-105 transition-transform duration-300 cursor-pointer text-left"
+                  className="bg-gradient-to-br from-primary-green/10 to-primary-orange/10 border-2 border-primary-green/20 rounded-xl p-5 md:p-7 hover:scale-105 transition-transform duration-300 cursor-pointer text-left"
                 >
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-primary-green/30 to-primary-green/20 flex items-center justify-center">
-                      <span className="text-3xl">📈</span>
+                  <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
+                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-lg bg-gradient-to-br from-primary-green/30 to-primary-green/20 flex items-center justify-center">
+                      <span className="text-2xl md:text-3xl">📈</span>
                     </div>
-                    <h3 className="text-3xl font-bold text-gray-800">BI TFF</h3>
+                    <h3 className="text-2xl md:text-3xl font-bold text-gray-800">BI TFF</h3>
                   </div>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 text-sm md:text-base">
                     Business Intelligence para análise de dados da TFF
                   </p>
                 </button>
@@ -295,15 +295,15 @@ export default function HomePage() {
                 {/* Card BI REFIS */}
                 <button 
                   onClick={() => router.push('/bi-refis')}
-                  className="bg-gradient-to-br from-primary-purple/10 via-primary-red/10 to-primary-orange/10 border-2 border-primary-purple/20 rounded-xl p-8 hover:scale-105 transition-transform duration-300 cursor-pointer text-left"
+                  className="bg-gradient-to-br from-primary-purple/10 via-primary-red/10 to-primary-orange/10 border-2 border-primary-purple/20 rounded-xl p-5 md:p-7 hover:scale-105 transition-transform duration-300 cursor-pointer text-left"
                 >
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-primary-purple/30 to-primary-red/20 flex items-center justify-center">
-                      <span className="text-3xl">💼</span>
+                  <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
+                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-lg bg-gradient-to-br from-primary-purple/30 to-primary-red/20 flex items-center justify-center">
+                      <span className="text-2xl md:text-3xl">💼</span>
                     </div>
-                    <h3 className="text-3xl font-bold text-gray-800">BI REFIS</h3>
+                    <h3 className="text-2xl md:text-3xl font-bold text-gray-800">BI REFIS</h3>
                   </div>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 text-sm md:text-base">
                     Business Intelligence para acompanhamento dos acordos do REFIS
                   </p>
                 </button>
@@ -311,33 +311,33 @@ export default function HomePage() {
             </div>
           ) : (
             /* Dashboard Principal com Notícias */
-            <div className="space-y-6">
+            <div className="space-y-5 md:space-y-6">
               {/* Card de Boas-vindas com Clima */}
-              <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl p-8">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+              <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl p-5 md:p-8">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-5 md:gap-6">
                   <div>
-                    <h2 className="text-3xl font-bold mb-2">
+                    <h2 className="text-2xl md:text-3xl font-bold mb-1.5 md:mb-2">
                       Olá, <span className="bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">{session.user?.name}</span>
                     </h2>
-                    <p className="text-gray-600 text-lg">
+                    <p className="text-gray-600 text-base md:text-lg">
                       Bem-vindo ao Sistema Camaçari APP
                     </p>
                   </div>
                   
                   {(clima || cotacoes) && (
-                    <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                    <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full md:w-auto">
                       {clima && (
-                        <div className="flex items-center gap-3 bg-gradient-to-br from-primary-orange/10 to-primary-red/10 border border-primary-orange/30 rounded-xl p-3 min-w-[220px]">
+                        <div className="flex items-center gap-3 bg-gradient-to-br from-primary-orange/10 to-primary-red/10 border border-primary-orange/30 rounded-xl p-3 md:p-4 min-w-[200px] md:min-w-[230px]">
                           <div className="text-center">
-                            <div className="text-4xl mb-1">
+                            <div className="text-3xl md:text-4xl mb-1">
                               {clima.descricao.includes('chuva') ? '🌧️' :
                                clima.descricao.includes('nuvem') ? '☁️' :
                                clima.descricao.includes('limpo') || clima.descricao.includes('sol') ? '☀️' : '🌤️'}
                             </div>
-                            <p className="text-3xl font-bold text-gray-800">{clima.temperatura}°C</p>
+                            <p className="text-2xl md:text-3xl font-bold text-gray-800">{clima.temperatura}°C</p>
                           </div>
                           <div className="border-l border-gray-300 pl-3">
-                            <p className="text-base font-semibold text-gray-800 capitalize">{clima.descricao}</p>
+                            <p className="text-sm md:text-base font-semibold text-gray-800 capitalize">{clima.descricao}</p>
                             <p className="text-xs text-gray-600">Sensação: {clima.sensacao}°C</p>
                             <p className="text-xs text-gray-600">Umidade: {clima.umidade}%</p>
                             <p className="text-[11px] text-gray-500 mt-1">📍 {clima.cidade}</p>
@@ -346,15 +346,15 @@ export default function HomePage() {
                       )}
 
                       {cotacoes && cotacoes.dolar && cotacoes.euro && (
-                        <div className="flex-1 bg-gradient-to-br from-primary-purple/10 via-primary-green/10 to-primary-orange/10 border border-primary-purple/30 rounded-xl p-3 min-w-[220px]">
-                          <div className="flex items-center justify-between mb-2">
+                        <div className="flex-1 bg-gradient-to-br from-primary-purple/10 via-primary-green/10 to-primary-orange/10 border border-primary-purple/30 rounded-xl p-3 md:p-4 min-w-[200px] md:min-w-[230px]">
+                          <div className="flex items-center justify-between mb-1.5 md:mb-2">
                             <span className="text-sm font-semibold text-gray-800">Cotações</span>
                             {!loadingCotacoes && (
                               <span className="text-[11px] text-gray-500">Atualizado às {formatCotacaoHora(cotacoes.dolar.atualizadoEm)}</span>
                             )}
                           </div>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 md:gap-3">
                             {[{
                               label: 'Dólar',
                               dados: cotacoes.dolar
@@ -373,14 +373,14 @@ export default function HomePage() {
                               const valorCompraFormatado = Number.isFinite(valorCompra) ? valorCompra.toFixed(2) : '0.00'
 
                               return (
-                                <div key={label} className="bg-white/70 rounded-lg p-3 shadow-sm">
-                                  <div className="flex items-center justify-between text-xs font-semibold text-gray-700">
+                                <div key={label} className="bg-white/70 rounded-lg p-2.5 md:p-3 shadow-sm">
+                                  <div className="flex items-center justify-between text-[11px] md:text-xs font-semibold text-gray-700">
                                     <span>{label}</span>
                                     <span className={variacaoPositiva ? 'text-primary-green flex items-center gap-1' : 'text-primary-red flex items-center gap-1'}>
                                       {variacaoPositiva ? '▲' : '▼'} {percentualFormatado}%
                                     </span>
                                   </div>
-                                  <p className="text-xl font-bold text-gray-900 mt-1">R$ {valorVendaFormatado}</p>
+                                  <p className="text-lg md:text-xl font-bold text-gray-900 mt-1">R$ {valorVendaFormatado}</p>
                                   <p className="text-[11px] text-gray-500">Compra: R$ {valorCompraFormatado}</p>
                                 </div>
                               )
@@ -394,12 +394,12 @@ export default function HomePage() {
               </div>
 
               {/* Seção de Notícias */}
-              <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl p-8">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-                  <h2 className="text-2xl font-bold bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">
+              <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl p-5 md:p-8">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 mb-5 md:mb-6">
+                  <h2 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">
                     Notícias
                   </h2>
-                  <div className="flex items-center gap-2 bg-gray-100 rounded-xl p-1 w-fit">
+                  <div className="flex items-center gap-2 bg-gray-100 rounded-xl p-1 w-fit flex-wrap">
                     {(['bahia', 'agencia'] as FonteNoticias[]).map(fonte => {
                       const isActive = fonteNoticias === fonte
                       const label = fonte === 'bahia' ? 'Governo da Bahia' : 'Agência Brasil Economia'
@@ -407,7 +407,7 @@ export default function HomePage() {
                         <button
                           key={fonte}
                           onClick={() => setFonteNoticias(fonte)}
-                          className={`px-3 py-1 text-sm font-medium rounded-lg transition-all ${
+                          className={`px-3 py-1 text-xs md:text-sm font-medium rounded-lg transition-all ${
                             isActive ? 'bg-white text-primary-orange shadow' : 'text-gray-600 hover:text-gray-800'
                           }`}
                         >
@@ -420,7 +420,7 @@ export default function HomePage() {
                     href={fonteNoticias === 'bahia' ? 'https://www.ba.gov.br/comunicacao/noticias' : 'https://agenciabrasil.ebc.com.br/economia'}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-primary-orange hover:text-primary-red transition-colors text-sm font-medium flex items-center gap-2 md:ml-auto"
+                    className="text-primary-orange hover:text-primary-red transition-colors text-xs md:text-sm font-medium flex items-center gap-2 md:ml-auto"
                   >
                     Ver todas
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -445,7 +445,7 @@ export default function HomePage() {
                   }
 
                   return (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                       {noticiasAtuais.slice(0, 6).map((noticia: any) => {
                         const imageSrc = noticia.image && noticia.image !== '' ? noticia.image : '/logo.png'
                         const sourceLabel = noticia.source === 'bahia' ? 'Governo da Bahia' : 'Agência Brasil'
@@ -454,9 +454,9 @@ export default function HomePage() {
                           <button
                             key={noticia.url}
                             onClick={() => router.push(`/noticia?url=${encodeURIComponent(noticia.url)}&fonte=${noticia.source}`)}
-                            className="group bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl hover:scale-105 transition-all duration-300 text-left"
+                            className="group bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-left"
                           >
-                            <div className="relative h-40 w-full overflow-hidden">
+                            <div className="relative h-36 md:h-40 w-full overflow-hidden">
                               <Image
                                 src={imageSrc}
                                 alt={noticia.title}
@@ -473,14 +473,14 @@ export default function HomePage() {
                                 </span>
                               </div>
                             </div>
-                            <div className="p-6">
-                              <h3 className="text-lg font-bold text-gray-800 mb-3 line-clamp-2 group-hover:text-primary-orange transition-colors">
+                            <div className="p-5 md:p-6">
+                              <h3 className="text-base md:text-lg font-bold text-gray-800 mb-2.5 md:mb-3 line-clamp-2 group-hover:text-primary-orange transition-colors">
                                 {noticia.title}
                               </h3>
-                              <p className="text-gray-600 text-sm line-clamp-3 mb-4">
+                              <p className="text-gray-600 text-sm line-clamp-3 mb-3 md:mb-4">
                                 {noticia.excerpt}
                               </p>
-                              <div className="mt-auto flex items-center text-primary-orange font-medium text-sm">
+                              <div className="mt-auto flex items-center text-primary-orange font-medium text-xs md:text-sm">
                                 Ler mais
                                 <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -499,8 +499,8 @@ export default function HomePage() {
         </main>
 
         {/* Footer */}
-        <footer className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg m-4 p-4 rounded-2xl">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-600">
+        <footer className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg m-3 md:m-4 p-3 md:p-4 rounded-2xl">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4 text-xs md:text-sm text-gray-600">
             <div className="flex items-center gap-2">
               <span>© 2025</span>
               <span className="font-semibold bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">
