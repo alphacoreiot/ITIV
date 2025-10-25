@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
+import AppHeader from '@/components/AppHeader'
 
 export default function BiRefisPage() {
   const { data: session, status } = useSession()
@@ -115,38 +116,13 @@ export default function BiRefisPage() {
       </div>
 
       <div className="relative z-10 flex flex-col min-h-screen">
-        <header className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg m-4 p-4 md:p-6 rounded-2xl">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-8">
-              <div className="relative w-auto h-18 cursor-pointer" onClick={() => router.push('/dashboard')}>
-                <Image
-                  src="/logo.png"
-                  alt="ITIV Logo"
-                  width={150}
-                  height={72}
-                  className="object-contain h-18 w-auto"
-                  priority
-                />
-              </div>
-
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => router.push('/dashboard')}
-                  className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-lg transition-all duration-300 font-medium"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                  </svg>
-                  <span>Voltar</span>
-                </button>
-                <span className="text-gray-300">|</span>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-primary-purple via-primary-orange to-primary-red bg-clip-text text-transparent">
-                  BI REFIS
-                </h1>
-              </div>
-            </div>
-          </div>
-        </header>
+        <AppHeader
+          session={session}
+          mode="bi"
+          onBiAction={() => router.push('/dashboard')}
+          biTitle="BI REFIS"
+          onLogoClick={() => router.push('/dashboard')}
+        />
 
         <main className="p-4 flex-1 flex">
           <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl overflow-hidden flex-1 flex flex-col">
