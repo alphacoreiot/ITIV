@@ -8,6 +8,7 @@ export default function NoticiaPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const url = searchParams.get('url')
+  const fonte = searchParams.get('fonte') as 'bahia' | 'agencia' | null
   
   const [noticia, setNoticia] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -18,8 +19,12 @@ export default function NoticiaPage() {
       return
     }
 
-    // Buscar conteúdo da notícia
-    fetch(`/api/noticia-completa?url=${encodeURIComponent(url)}`)
+    const query = new URLSearchParams({ url: url ?? '' })
+    if (fonte) {
+      query.set('fonte', fonte)
+    }
+
+    fetch(`/api/noticia-completa?${query.toString()}`)
       .then(res => res.json())
       .then(data => {
         setNoticia(data)
@@ -73,7 +78,7 @@ export default function NoticiaPage() {
               </button>
               <span className="text-gray-300">|</span>
               <h1 className="text-xl font-bold bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">
-                Notícia SEFAZ
+                {fonte === 'bahia' ? 'Notícia • Governo da Bahia' : 'Notícia • Agência Brasil Economia'}
               </h1>
             </div>
           </div>
@@ -92,14 +97,16 @@ export default function NoticiaPage() {
             ) : noticia?.error ? (
               <div className="text-center py-20">
                 <p className="text-red-600 mb-4">Erro ao carregar notícia</p>
-                <a 
-                  href={url || '#'} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-primary-orange hover:text-primary-red"
-                >
-                  Abrir no site original
-                </a>
+                {url && (
+                  <a 
+                    href={url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary-orange hover:text-primary-red"
+                  >
+                    Abrir no site original
+                  </a>
+                )}
               </div>
             ) : (
               <>
@@ -124,19 +131,21 @@ export default function NoticiaPage() {
                   }}
                 />
 
-                <div className="mt-8 pt-8 border-t border-gray-200">
-                  <a 
-                    href={url || '#'} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-primary-orange hover:text-primary-red transition-colors font-medium"
-                  >
-                    Ver notícia original no site da SEFAZ
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </a>
-                </div>
+                {url && (
+                  <div className="mt-8 pt-8 border-t border-gray-200">
+                    <a 
+                      href={url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-primary-orange hover:text-primary-red transition-colors font-medium"
+                    >
+                      Ver notícia original {fonte === 'bahia' ? 'no portal do Governo da Bahia' : 'na Agência Brasil'}
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </a>
+                  </div>
+                )}
               </>
             )}
           </div>

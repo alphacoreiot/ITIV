@@ -6,14 +6,19 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Chatbot from '@/components/Chatbot'
 
+type FonteNoticias = 'bahia' | 'agencia'
+
 export default function HomePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [showBIPanels, setShowBIPanels] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [noticias, setNoticias] = useState<any[]>([])
+  const [noticias, setNoticias] = useState<{ bahia: any[]; agencia: any[] }>({ bahia: [], agencia: [] })
   const [loadingNoticias, setLoadingNoticias] = useState(true)
   const [clima, setClima] = useState<any>(null)
+  const [cotacoes, setCotacoes] = useState<any>(null)
+  const [loadingCotacoes, setLoadingCotacoes] = useState(true)
+  const [fonteNoticias, setFonteNoticias] = useState<FonteNoticias>('bahia')
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -30,16 +35,33 @@ export default function HomePage() {
   }, [])
 
   useEffect(() => {
-    // Buscar notícias da SEFAZ
     fetch('/api/noticias')
       .then(res => res.json())
       .then(data => {
-        setNoticias(data.noticias || [])
+        setNoticias({
+          bahia: data?.noticias?.bahia || [],
+          agencia: data?.noticias?.agencia || []
+        })
         setLoadingNoticias(false)
       })
       .catch(err => {
         console.error('Erro ao carregar notícias:', err)
+        setNoticias({ bahia: [], agencia: [] })
         setLoadingNoticias(false)
+      })
+  }, [])
+
+  useEffect(() => {
+    fetch('/api/cotacoes')
+      .then(res => res.json())
+      .then(data => {
+        setCotacoes(data)
+        setLoadingCotacoes(false)
+      })
+      .catch(err => {
+        console.error('Erro ao carregar cotações:', err)
+        setCotacoes(null)
+        setLoadingCotacoes(false)
       })
   }, [])
 
@@ -67,6 +89,13 @@ export default function HomePage() {
 
   if (!session) {
     return null
+  }
+
+  const formatCotacaoHora = (iso?: string) => {
+    if (!iso) return '-'
+    const data = new Date(iso)
+    if (Number.isNaN(data.getTime())) return '-'
+    return data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
   }
 
   return (
@@ -230,7 +259,7 @@ export default function HomePage() {
               <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">
                 Painéis do B.I.
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Card BI IPTU */}
                 <button 
                   onClick={() => router.push('/bi-iptu')}
@@ -262,6 +291,22 @@ export default function HomePage() {
                     Business Intelligence para análise de dados da TFF
                   </p>
                 </button>
+
+                {/* Card BI REFIS */}
+                <button 
+                  onClick={() => router.push('/bi-refis')}
+                  className="bg-gradient-to-br from-primary-purple/10 via-primary-red/10 to-primary-orange/10 border-2 border-primary-purple/20 rounded-xl p-8 hover:scale-105 transition-transform duration-300 cursor-pointer text-left"
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-primary-purple/30 to-primary-red/20 flex items-center justify-center">
+                      <span className="text-3xl">💼</span>
+                    </div>
+                    <h3 className="text-3xl font-bold text-gray-800">BI REFIS</h3>
+                  </div>
+                  <p className="text-gray-600">
+                    Business Intelligence para acompanhamento dos acordos do REFIS
+                  </p>
+                </button>
               </div>
             </div>
           ) : (
@@ -279,39 +324,103 @@ export default function HomePage() {
                     </p>
                   </div>
                   
-                  {/* Card de Clima */}
-                  {clima && (
-                    <div className="flex items-center gap-4 bg-gradient-to-br from-primary-orange/10 to-primary-red/10 border border-primary-orange/30 rounded-xl p-4 min-w-[280px]">
-                      <div className="text-center">
-                        <div className="text-5xl mb-2">
-                          {clima.descricao.includes('chuva') ? '🌧️' : 
-                           clima.descricao.includes('nuvem') ? '☁️' : 
-                           clima.descricao.includes('limpo') || clima.descricao.includes('sol') ? '☀️' : '🌤️'}
+                  {(clima || cotacoes) && (
+                    <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                      {clima && (
+                        <div className="flex items-center gap-3 bg-gradient-to-br from-primary-orange/10 to-primary-red/10 border border-primary-orange/30 rounded-xl p-3 min-w-[220px]">
+                          <div className="text-center">
+                            <div className="text-4xl mb-1">
+                              {clima.descricao.includes('chuva') ? '🌧️' :
+                               clima.descricao.includes('nuvem') ? '☁️' :
+                               clima.descricao.includes('limpo') || clima.descricao.includes('sol') ? '☀️' : '🌤️'}
+                            </div>
+                            <p className="text-3xl font-bold text-gray-800">{clima.temperatura}°C</p>
+                          </div>
+                          <div className="border-l border-gray-300 pl-3">
+                            <p className="text-base font-semibold text-gray-800 capitalize">{clima.descricao}</p>
+                            <p className="text-xs text-gray-600">Sensação: {clima.sensacao}°C</p>
+                            <p className="text-xs text-gray-600">Umidade: {clima.umidade}%</p>
+                            <p className="text-[11px] text-gray-500 mt-1">📍 {clima.cidade}</p>
+                          </div>
                         </div>
-                        <p className="text-4xl font-bold text-gray-800">{clima.temperatura}°C</p>
-                      </div>
-                      <div className="border-l border-gray-300 pl-4">
-                        <p className="text-lg font-semibold text-gray-800 capitalize">{clima.descricao}</p>
-                        <p className="text-sm text-gray-600">Sensação: {clima.sensacao}°C</p>
-                        <p className="text-sm text-gray-600">Umidade: {clima.umidade}%</p>
-                        <p className="text-xs text-gray-500 mt-1">📍 {clima.cidade}</p>
-                      </div>
+                      )}
+
+                      {cotacoes && cotacoes.dolar && cotacoes.euro && (
+                        <div className="flex-1 bg-gradient-to-br from-primary-purple/10 via-primary-green/10 to-primary-orange/10 border border-primary-purple/30 rounded-xl p-3 min-w-[220px]">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-semibold text-gray-800">Cotações</span>
+                            {!loadingCotacoes && (
+                              <span className="text-[11px] text-gray-500">Atualizado às {formatCotacaoHora(cotacoes.dolar.atualizadoEm)}</span>
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {[{
+                              label: 'Dólar',
+                              dados: cotacoes.dolar
+                            }, {
+                              label: 'Euro',
+                              dados: cotacoes.euro
+                            }].map(({ label, dados }) => {
+                              const variacao = Number(dados.variacao ?? dados.percentual ?? 0)
+                              const variacaoPositiva = Number.isFinite(variacao) ? variacao >= 0 : true
+                              const percentualValor = Number(dados.percentual ?? dados.porcentagem ?? variacao)
+                              const valorVenda = Number(dados.venda ?? dados.preco ?? dados.compra ?? 0)
+                              const valorCompra = Number(dados.compra ?? dados.venda ?? dados.preco ?? 0)
+
+                              const percentualFormatado = Number.isFinite(percentualValor) ? percentualValor.toFixed(2) : '0.00'
+                              const valorVendaFormatado = Number.isFinite(valorVenda) ? valorVenda.toFixed(2) : '0.00'
+                              const valorCompraFormatado = Number.isFinite(valorCompra) ? valorCompra.toFixed(2) : '0.00'
+
+                              return (
+                                <div key={label} className="bg-white/70 rounded-lg p-3 shadow-sm">
+                                  <div className="flex items-center justify-between text-xs font-semibold text-gray-700">
+                                    <span>{label}</span>
+                                    <span className={variacaoPositiva ? 'text-primary-green flex items-center gap-1' : 'text-primary-red flex items-center gap-1'}>
+                                      {variacaoPositiva ? '▲' : '▼'} {percentualFormatado}%
+                                    </span>
+                                  </div>
+                                  <p className="text-xl font-bold text-gray-900 mt-1">R$ {valorVendaFormatado}</p>
+                                  <p className="text-[11px] text-gray-500">Compra: R$ {valorCompraFormatado}</p>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Seção de Notícias SEFAZ */}
+              {/* Seção de Notícias */}
               <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl p-8">
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                   <h2 className="text-2xl font-bold bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">
-                    Notícias SEFAZ Camaçari
+                    Notícias
                   </h2>
-                  <a 
-                    href="https://sefaz.camacari.ba.gov.br/" 
-                    target="_blank" 
+                  <div className="flex items-center gap-2 bg-gray-100 rounded-xl p-1 w-fit">
+                    {(['bahia', 'agencia'] as FonteNoticias[]).map(fonte => {
+                      const isActive = fonteNoticias === fonte
+                      const label = fonte === 'bahia' ? 'Governo da Bahia' : 'Agência Brasil Economia'
+                      return (
+                        <button
+                          key={fonte}
+                          onClick={() => setFonteNoticias(fonte)}
+                          className={`px-3 py-1 text-sm font-medium rounded-lg transition-all ${
+                            isActive ? 'bg-white text-primary-orange shadow' : 'text-gray-600 hover:text-gray-800'
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      )
+                    })}
+                  </div>
+                  <a
+                    href={fonteNoticias === 'bahia' ? 'https://www.ba.gov.br/comunicacao/noticias' : 'https://agenciabrasil.ebc.com.br/economia'}
+                    target="_blank"
                     rel="noopener noreferrer"
-                    className="text-primary-orange hover:text-primary-red transition-colors text-sm font-medium flex items-center gap-2"
+                    className="text-primary-orange hover:text-primary-red transition-colors text-sm font-medium flex items-center gap-2 md:ml-auto"
                   >
                     Ver todas
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -324,38 +433,66 @@ export default function HomePage() {
                   <div className="flex items-center justify-center py-12">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-orange"></div>
                   </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {noticias.map((noticia) => {
-                      return (
-                        <button
-                          key={noticia.id}
-                          onClick={() => router.push(`/noticia?url=${encodeURIComponent(noticia.url)}`)}
-                          className="group bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl hover:scale-105 transition-all duration-300 text-left"
-                        >
-                        <div className="p-6">
-                          <div className="flex items-center gap-2 mb-3">
-                            <span className="text-xs font-medium text-gray-500">
-                              📅 {noticia.date}
-                            </span>
-                          </div>
-                          <h3 className="text-lg font-bold text-gray-800 mb-2 group-hover:text-primary-orange transition-colors line-clamp-2">
-                            {noticia.title}
-                          </h3>
-                          <p className="text-gray-600 text-sm line-clamp-3">
-                            {noticia.excerpt}
-                          </p>
-                          <div className="mt-4 flex items-center text-primary-orange font-medium text-sm">
-                            Ler mais
-                            <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                          </div>
-                        </div>
-                      </button>
-                    )})}
-                  </div>
-                )}
+                ) : (() => {
+                  const noticiasAtuais = fonteNoticias === 'bahia' ? noticias.bahia : noticias.agencia
+
+                  if (!noticiasAtuais || noticiasAtuais.length === 0) {
+                    return (
+                      <div className="py-12 text-center text-gray-500">
+                        Não foi possível carregar notícias no momento.
+                      </div>
+                    )
+                  }
+
+                  return (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {noticiasAtuais.slice(0, 6).map((noticia: any) => {
+                        const imageSrc = noticia.image && noticia.image !== '' ? noticia.image : '/logo.png'
+                        const sourceLabel = noticia.source === 'bahia' ? 'Governo da Bahia' : 'Agência Brasil'
+
+                        return (
+                          <button
+                            key={noticia.url}
+                            onClick={() => router.push(`/noticia?url=${encodeURIComponent(noticia.url)}&fonte=${noticia.source}`)}
+                            className="group bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl hover:scale-105 transition-all duration-300 text-left"
+                          >
+                            <div className="relative h-40 w-full overflow-hidden">
+                              <Image
+                                src={imageSrc}
+                                alt={noticia.title}
+                                fill
+                                className="object-cover transition-transform duration-500 group-hover:scale-110"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                              <div className="absolute bottom-2 left-3 flex items-center gap-2 text-xs font-medium text-white/90">
+                                <span className="px-2 py-0.5 bg-white/20 rounded-full backdrop-blur-sm">
+                                  {sourceLabel}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  📅 {noticia.date}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="p-6">
+                              <h3 className="text-lg font-bold text-gray-800 mb-3 line-clamp-2 group-hover:text-primary-orange transition-colors">
+                                {noticia.title}
+                              </h3>
+                              <p className="text-gray-600 text-sm line-clamp-3 mb-4">
+                                {noticia.excerpt}
+                              </p>
+                              <div className="mt-auto flex items-center text-primary-orange font-medium text-sm">
+                                Ler mais
+                                <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                              </div>
+                            </div>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )
+                })()}
               </div>
             </div>
           )}

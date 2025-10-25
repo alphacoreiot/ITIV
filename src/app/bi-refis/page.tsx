@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 
-export default function BiTffPage() {
+export default function BiRefisPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [iframeUrl, setIframeUrl] = useState('')
@@ -22,7 +22,7 @@ export default function BiTffPage() {
 
     const fetchToken = async () => {
       try {
-        const response = await fetch('/api/metabase/token?dashboard=2')
+        const response = await fetch('/api/metabase/token?dashboard=7')
         if (!response.ok) {
           throw new Error(`Falha ao buscar token Metabase: ${response.status}`)
         }
@@ -81,7 +81,6 @@ export default function BiTffPage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden flex flex-col">
-      {/* Background Image com overlay */}
       <div className="absolute inset-0">
         <Image
           src="/background.jpg"
@@ -94,21 +93,20 @@ export default function BiTffPage() {
         <div className="absolute inset-0 bg-white/60 backdrop-blur-md"></div>
       </div>
 
-      {/* Efeitos de fundo com degradê animado */}
       <div className="absolute inset-0 overflow-hidden">
-        <div 
+        <div
           className="absolute w-[500px] h-[500px] rounded-full blur-3xl opacity-30"
           style={{
-            background: 'radial-gradient(circle, rgba(139, 192, 61, 0.3) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(236, 33, 42, 0.3) 0%, transparent 70%)',
             top: '-10%',
             left: '-5%',
             animation: 'float-breeze-1 18s ease-in-out infinite'
           }}
         ></div>
-        <div 
+        <div
           className="absolute w-[450px] h-[450px] rounded-full blur-3xl opacity-30"
           style={{
-            background: 'radial-gradient(circle, rgba(246, 132, 35, 0.3) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(124, 58, 150, 0.3) 0%, transparent 70%)',
             top: '10%',
             right: '-10%',
             animation: 'float-breeze-2 22s ease-in-out infinite'
@@ -117,7 +115,6 @@ export default function BiTffPage() {
       </div>
 
       <div className="relative z-10 flex flex-col min-h-screen">
-        {/* Header */}
         <header className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg m-4 p-4 md:p-6 rounded-2xl">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-8">
@@ -131,7 +128,7 @@ export default function BiTffPage() {
                   priority
                 />
               </div>
-              
+
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => router.push('/dashboard')}
@@ -143,15 +140,14 @@ export default function BiTffPage() {
                   <span>Voltar</span>
                 </button>
                 <span className="text-gray-300">|</span>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-primary-green via-primary-orange to-primary-purple bg-clip-text text-transparent">
-                  BI TFF
+                <h1 className="text-xl font-bold bg-gradient-to-r from-primary-purple via-primary-orange to-primary-red bg-clip-text text-transparent">
+                  BI REFIS
                 </h1>
               </div>
             </div>
           </div>
         </header>
 
-        {/* Metabase Dashboard */}
         <main className="p-4 flex-1 flex">
           <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl overflow-hidden flex-1 flex flex-col">
             {iframeUrl ? (
@@ -172,7 +168,6 @@ export default function BiTffPage() {
           </div>
         </main>
 
-        {/* Footer */}
         <footer className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg m-4 p-4 rounded-2xl">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-600">
             <div className="flex items-center gap-2">

@@ -7,15 +7,20 @@ const METABASE_SECRET_KEY = "ae9d47849fe03643c16ef79a657f6b5c63ee6c0261d2d190117
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const dashboardId = searchParams.get('dashboard') || '3'
+  const ttlMinutesParam = searchParams.get('ttl')
+  const ttlMinutes = Math.min(
+    Math.max(Number(ttlMinutesParam) || 30, 5),
+    120
+  )
 
   const payload = {
     resource: { dashboard: parseInt(dashboardId) },
     params: {},
-    exp: Math.round(Date.now() / 1000) + (10 * 60) // 10 minute expiration
+    exp: Math.round(Date.now() / 1000) + ttlMinutes * 60
   }
 
   const token = jwt.sign(payload, METABASE_SECRET_KEY)
   const iframeUrl = `${METABASE_SITE_URL}/embed/dashboard/${token}#bordered=true&titled=true`
 
-  return NextResponse.json({ iframeUrl })
+  return NextResponse.json({ iframeUrl, expiresInMinutes: ttlMinutes })
 }

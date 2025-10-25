@@ -17,11 +17,41 @@ export default function BiIptuPage() {
   }, [status, router])
 
   useEffect(() => {
-    // Buscar o token do Metabase
-    fetch('/api/metabase/token?dashboard=3')
-      .then(res => res.json())
-      .then(data => setIframeUrl(data.iframeUrl))
-      .catch(err => console.error('Erro ao carregar Metabase:', err))
+    let isMounted = true
+    let refreshTimer: ReturnType<typeof setTimeout> | undefined
+
+    const fetchToken = async () => {
+      try {
+        const response = await fetch('/api/metabase/token?dashboard=3')
+        if (!response.ok) {
+          throw new Error(`Falha ao buscar token Metabase: ${response.status}`)
+        }
+        const data = await response.json()
+        if (!isMounted) return
+        setIframeUrl(data.iframeUrl)
+        scheduleRefresh(data.expiresInMinutes)
+      } catch (err) {
+        console.error('Erro ao carregar Metabase:', err)
+      }
+    }
+
+    function scheduleRefresh(expiresInMinutes: number | undefined) {
+      const refreshMs = Math.max(((expiresInMinutes ?? 30) - 1) * 60_000, 5 * 60_000)
+      refreshTimer = setTimeout(fetchToken, refreshMs)
+    }
+
+    fetchToken()
+
+    const handleFocus = () => fetchToken()
+    window.addEventListener('focus', handleFocus)
+
+    return () => {
+      isMounted = false
+      if (refreshTimer) {
+        clearTimeout(refreshTimer)
+      }
+      window.removeEventListener('focus', handleFocus)
+    }
   }, [])
 
   if (status === 'loading') {
@@ -122,19 +152,17 @@ export default function BiIptuPage() {
         </header>
 
         {/* Metabase Dashboard */}
-        <main className="p-4 flex-1">
-          <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl overflow-hidden">
+        <main className="p-4 flex-1 flex">
+          <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl overflow-hidden flex-1 flex flex-col">
             {iframeUrl ? (
               <iframe
                 src={iframeUrl}
                 frameBorder={0}
-                width="100%"
-                height="800"
                 allowTransparency
-                className="w-full"
+                className="w-full flex-1 min-h-[65vh]"
               />
             ) : (
-              <div className="flex items-center justify-center h-[800px]">
+              <div className="flex-1 flex items-center justify-center min-h-[65vh]">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-orange mx-auto mb-4"></div>
                   <p className="text-gray-600">Carregando painel...</p>
