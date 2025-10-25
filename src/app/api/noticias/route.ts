@@ -54,13 +54,15 @@ async function loadFeed(feedKey: FeedKey) {
     const $ = cheerio.load(xml, { xmlMode: true })
     const noticias: any[] = []
 
-    $('item').each((_index, element) => {
+    const entries = $('item').length ? $('item') : $('entry')
+
+    entries.each((_index, element) => {
       if (noticias.length >= 9) return false
 
       const $item = $(element)
-      const title = $item.find('title').first().text().trim()
-      const url = $item.find('link').first().text().trim()
-      const descriptionHtml = $item.find('description').first().text().trim()
+      const title = getFirstText($item, ['title'])
+      const url = getFirstLink($item) || getFirstText($item, ['guid'])
+  const descriptionHtml = getFirstText($item, ['description', 'content\:encoded', 'content', 'summary'])
 
       let descriptionText = ''
       if (descriptionHtml) {
@@ -69,7 +71,7 @@ async function loadFeed(feedKey: FeedKey) {
       }
       const excerpt = descriptionText.substring(0, 200) + (descriptionText.length > 200 ? '...' : '')
 
-      const pubDate = $item.find('pubDate').first().text().trim()
+      const pubDate = getFirstText($item, ['pubDate', 'updated', 'published'])
       let date = new Date().toLocaleDateString('pt-BR')
       if (pubDate) {
         const parsedDate = new Date(pubDate)
@@ -104,7 +106,32 @@ async function loadFeed(feedKey: FeedKey) {
   }
 }
 
-function resolveImageUrl($item: any, descriptionHtml: string, baseImageUrl?: string) {
+function getFirstText($context: cheerio.Cheerio, selectors: string[]): string {
+  for (const selector of selectors) {
+    const text = $context.find(selector).first().text().trim()
+    if (text) return text
+  }
+  return ''
+}
+
+function getFirstLink($context: cheerio.Cheerio): string {
+  const links = $context.find('link')
+  for (let i = 0; i < links.length; i += 1) {
+    const link = links.eq(i)
+    const rel = (link.attr('rel') || '').toLowerCase()
+    if (rel && rel !== 'alternate') continue
+
+    const href = link.attr('href')?.trim()
+    if (href) return href
+
+    const text = link.text().trim()
+    if (text) return text
+  }
+
+  return ''
+}
+
+function resolveImageUrl($item: cheerio.Cheerio, descriptionHtml: string, baseImageUrl?: string) {
   let image = '/logo.png'
 
   const enclosureUrl = $item.find('enclosure').attr('url')?.trim()
@@ -114,7 +141,9 @@ function resolveImageUrl($item: any, descriptionHtml: string, baseImageUrl?: str
 
   if (image === '/logo.png') {
     const mediaContent = $item.find('media\\:content').attr('url')?.trim()
-    const mediaThumb = mediaContent || $item.find('media\\:thumbnail').attr('url')?.trim()
+    const mediaThumb = mediaContent ||
+      $item.find('media\\:thumbnail').attr('url')?.trim() ||
+      $item.find('link[rel="enclosure"][type^="image/"]').attr('href')?.trim()
     if (mediaThumb) {
       image = mediaThumb
     }
