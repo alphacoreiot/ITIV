@@ -8,6 +8,50 @@ import Chatbot from '@/components/Chatbot'
 
 type FonteNoticias = 'bahia' | 'agencia'
 
+type ResumoRefisResponse = {
+  success: boolean
+  resumo: {
+    totalRegistros: number
+    valorTotal: number
+    valorArrecadado: number
+    valorEmAberto: number
+    parcelasTotais: number
+    parcelasPagas: number
+    parcelasAbertas: number
+    acordosAtivos: number
+    acordosEmRisco: number
+    ultimaAdesao: string | null
+    primeiraAdesao: string | null
+  }
+  statusResumo: Array<{
+    status: string
+    quantidade: number
+    valorNegociado: number
+  }>
+  distribuicaoParcelas: Array<{
+    faixa: string
+    quantidade: number
+    valorNegociado: number
+  }>
+  statusFinanceiro: Array<{
+    situacao: string
+    quantidade: number
+    valorNegociado: number
+  }>
+  participacaoValores: Array<{
+    categoria: string
+    quantidade: number
+    valorNegociado: number
+    percentual: number
+  }>
+  topContribuintes: Array<{
+    contribuinte: string
+    cpfCnpj: string
+    acordos: number
+    valorNegociado: number
+  }>
+}
+
 export default function HomePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -19,6 +63,9 @@ export default function HomePage() {
   const [cotacoes, setCotacoes] = useState<any>(null)
   const [loadingCotacoes, setLoadingCotacoes] = useState(true)
   const [fonteNoticias, setFonteNoticias] = useState<FonteNoticias>('bahia')
+  const [refisResumo, setRefisResumo] = useState<ResumoRefisResponse | null>(null)
+  const [loadingRefis, setLoadingRefis] = useState(true)
+  const [erroRefis, setErroRefis] = useState<string | null>(null)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -65,6 +112,29 @@ export default function HomePage() {
       })
   }, [])
 
+  useEffect(() => {
+    setLoadingRefis(true)
+    fetch('/api/refis/resumo')
+      .then(res => res.json())
+      .then((data: ResumoRefisResponse) => {
+        if (data?.success) {
+          setRefisResumo(data)
+          setErroRefis(null)
+        } else {
+          setRefisResumo(null)
+          setErroRefis('Não foi possível carregar o resumo do REFIS.')
+        }
+      })
+      .catch(err => {
+        console.error('Erro ao carregar resumo do REFIS:', err)
+        setRefisResumo(null)
+        setErroRefis('Erro ao carregar resumo do REFIS.')
+      })
+      .finally(() => {
+        setLoadingRefis(false)
+      })
+  }, [])
+
   if (status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
@@ -97,6 +167,53 @@ export default function HomePage() {
     if (Number.isNaN(data.getTime())) return '-'
     return data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
   }
+
+  const formatCurrency = (valor: number) => {
+    if (!Number.isFinite(valor)) return 'R$ 0,00'
+    return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+  }
+
+  const formatNumber = (valor: number) => {
+    if (!Number.isFinite(valor)) return '0'
+    return valor.toLocaleString('pt-BR')
+  }
+
+  const formatPercent = (valor: number) => {
+    if (!Number.isFinite(valor)) return '0%'
+    return `${valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`
+  }
+
+  const formatDate = (iso?: string | null) => {
+    if (!iso) return '-'
+    const data = new Date(iso)
+    if (Number.isNaN(data.getTime())) return '-'
+    return data.toLocaleDateString('pt-BR')
+  }
+
+  const quickResumoRefis = refisResumo?.resumo
+    ? [
+        {
+          label: 'Adesões registradas',
+          value: formatNumber(refisResumo.resumo.totalRegistros),
+          helper: `Última adesão: ${formatDate(refisResumo.resumo.ultimaAdesao)}`
+        },
+        {
+          label: 'Valor negociado',
+          value: formatCurrency(refisResumo.resumo.valorTotal),
+          helper: `Arrecadado: ${formatCurrency(refisResumo.resumo.valorArrecadado)}`
+        },
+        {
+          label: 'Valor em aberto',
+          value: formatCurrency(refisResumo.resumo.valorEmAberto),
+          helper: `${formatNumber(refisResumo.resumo.parcelasAbertas)} parcelas pendentes`
+        },
+        {
+          label: 'Acordos ativos',
+          value: formatNumber(refisResumo.resumo.acordosAtivos),
+          helper: `${formatNumber(refisResumo.resumo.acordosEmRisco)} em risco`
+        }
+      ]
+    : []
 
   return (
     <div className="min-h-screen relative overflow-hidden flex flex-col">
@@ -391,6 +508,177 @@ export default function HomePage() {
                     </div>
                   )}
                 </div>
+              </div>
+
+              {/* Resumo REFIS 2025 */}
+              <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg rounded-2xl p-5 md:p-8">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 md:gap-4 mb-5 md:mb-6">
+                  <div>
+                    <h2 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">
+                      Resumo REFIS 2025
+                    </h2>
+                    <p className="text-sm md:text-base text-gray-600">Dados consolidados da tb_refis_2025</p>
+                  </div>
+                  {refisResumo?.resumo && (
+                    <div className="text-xs md:text-sm text-gray-500">
+                      <p>Período: {formatDate(refisResumo.resumo.primeiraAdesao)} - {formatDate(refisResumo.resumo.ultimaAdesao)}</p>
+                    </div>
+                  )}
+                </div>
+
+                {loadingRefis ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-orange"></div>
+                  </div>
+                ) : erroRefis ? (
+                  <div className="py-10 text-center text-sm md:text-base text-red-500 font-medium">
+                    {erroRefis}
+                  </div>
+                ) : refisResumo ? (
+                  <div className="space-y-5 md:space-y-6">
+                    {quickResumoRefis.length > 0 && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
+                        {quickResumoRefis.map(item => (
+                          <div key={item.label} className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl p-4 md:p-5 shadow-sm">
+                            <p className="text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wide">{item.label}</p>
+                            <p className="text-xl md:text-2xl font-bold text-gray-800 mt-1">{item.value}</p>
+                            <p className="text-xs md:text-sm text-gray-500 mt-2">{item.helper}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5">
+                      <div className="bg-gradient-to-br from-primary-orange/10 via-primary-red/5 to-white border border-primary-orange/30 rounded-xl p-4 md:p-5 shadow-sm">
+                        <h3 className="text-sm md:text-base font-semibold text-gray-800 mb-3">Situação dos Acordos</h3>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left text-xs md:text-sm text-gray-700">
+                            <thead>
+                              <tr className="border-b border-white/40">
+                                <th className="py-2 pr-2 font-medium">Status</th>
+                                <th className="py-2 pr-2 font-medium text-right">Quantidade</th>
+                                <th className="py-2 font-medium text-right">Valor negociado</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/40">
+                              {refisResumo.statusResumo.map(item => (
+                                <tr key={item.status}>
+                                  <td className="py-2 pr-2 font-semibold text-gray-800">{item.status}</td>
+                                  <td className="py-2 pr-2 text-right">{formatNumber(item.quantidade)}</td>
+                                  <td className="py-2 text-right">{formatCurrency(item.valorNegociado)}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      <div className="bg-gradient-to-br from-primary-purple/10 via-primary-orange/10 to-white border border-primary-purple/30 rounded-xl p-4 md:p-5 shadow-sm">
+                        <h3 className="text-sm md:text-base font-semibold text-gray-800 mb-3">Resumo Financeiro</h3>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left text-xs md:text-sm text-gray-700">
+                            <thead>
+                              <tr className="border-b border-white/40">
+                                <th className="py-2 pr-2 font-medium">Situação</th>
+                                <th className="py-2 pr-2 font-medium text-right">Quantidade</th>
+                                <th className="py-2 font-medium text-right">Valor</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/40">
+                              {refisResumo.statusFinanceiro.map(item => (
+                                <tr key={item.situacao}>
+                                  <td className="py-2 pr-2 font-semibold text-gray-800">{item.situacao}</td>
+                                  <td className="py-2 pr-2 text-right">{formatNumber(item.quantidade)}</td>
+                                  <td className="py-2 text-right">{formatCurrency(item.valorNegociado)}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      <div className="bg-gradient-to-br from-primary-green/10 via-primary-orange/10 to-white border border-primary-green/30 rounded-xl p-4 md:p-5 shadow-sm">
+                        <h3 className="text-sm md:text-base font-semibold text-gray-800 mb-3">Faixa de Parcelamento</h3>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left text-xs md:text-sm text-gray-700">
+                            <thead>
+                              <tr className="border-b border-white/40">
+                                <th className="py-2 pr-2 font-medium">Faixa</th>
+                                <th className="py-2 pr-2 font-medium text-right">Quantidade</th>
+                                <th className="py-2 font-medium text-right">Valor negociado</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/40">
+                              {refisResumo.distribuicaoParcelas.map(item => (
+                                <tr key={item.faixa}>
+                                  <td className="py-2 pr-2 font-semibold text-gray-800">{item.faixa}</td>
+                                  <td className="py-2 pr-2 text-right">{formatNumber(item.quantidade)}</td>
+                                  <td className="py-2 text-right">{formatCurrency(item.valorNegociado)}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      <div className="bg-gradient-to-br from-primary-red/10 via-primary-purple/10 to-white border border-primary-red/30 rounded-xl p-4 md:p-5 shadow-sm">
+                        <h3 className="text-sm md:text-base font-semibold text-gray-800 mb-3">Participação no Total</h3>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left text-xs md:text-sm text-gray-700">
+                            <thead>
+                              <tr className="border-b border-white/40">
+                                <th className="py-2 pr-2 font-medium">Categoria</th>
+                                <th className="py-2 pr-2 font-medium text-right">Quantidade</th>
+                                <th className="py-2 pr-2 font-medium text-right">Valor</th>
+                                <th className="py-2 font-medium text-right">Participação</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/40">
+                              {refisResumo.participacaoValores.map(item => (
+                                <tr key={item.categoria}>
+                                  <td className="py-2 pr-2 font-semibold text-gray-800">{item.categoria}</td>
+                                  <td className="py-2 pr-2 text-right">{formatNumber(item.quantidade)}</td>
+                                  <td className="py-2 pr-2 text-right">{formatCurrency(item.valorNegociado)}</td>
+                                  <td className="py-2 text-right font-semibold text-primary-purple">{formatPercent(item.percentual)}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      <div className="bg-gradient-to-br from-gray-50 via-white to-primary-orange/5 border border-gray-200 rounded-xl p-4 md:p-5 shadow-sm lg:col-span-2 xl:col-span-2">
+                        <h3 className="text-sm md:text-base font-semibold text-gray-800 mb-3">Top Contribuintes</h3>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left text-xs md:text-sm text-gray-700">
+                            <thead>
+                              <tr className="border-b border-gray-200/70">
+                                <th className="py-2 pr-2 font-medium">Contribuinte</th>
+                                <th className="py-2 pr-2 font-medium">CPF/CNPJ</th>
+                                <th className="py-2 pr-2 font-medium text-right">Acordos</th>
+                                <th className="py-2 font-medium text-right">Valor negociado</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200/70">
+                              {refisResumo.topContribuintes.map(item => (
+                                <tr key={`${item.contribuinte}-${item.cpfCnpj}`}>
+                                  <td className="py-2 pr-2 font-semibold text-gray-800">{item.contribuinte}</td>
+                                  <td className="py-2 pr-2 text-gray-600">{item.cpfCnpj}</td>
+                                  <td className="py-2 pr-2 text-right">{formatNumber(item.acordos)}</td>
+                                  <td className="py-2 text-right">{formatCurrency(item.valorNegociado)}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="py-10 text-center text-sm md:text-base text-gray-500">
+                    Nenhum dado do REFIS encontrado para exibir.
+                  </div>
+                )}
               </div>
 
               {/* Seção de Notícias */}
