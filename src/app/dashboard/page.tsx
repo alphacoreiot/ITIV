@@ -1,12 +1,13 @@
 'use client'
 
-import { useSession, signOut } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Chatbot from '@/components/Chatbot'
+import AppHeader from '@/components/AppHeader'
 
-type FonteNoticias = 'bahia' | 'agencia'
+type FonteNoticias = 'bahia' | 'agencia' | 'folha'
 
 type ResumoRefisResponse = {
   success: boolean
@@ -56,8 +57,7 @@ export default function HomePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [showBIPanels, setShowBIPanels] = useState(false)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [noticias, setNoticias] = useState<{ bahia: any[]; agencia: any[] }>({ bahia: [], agencia: [] })
+  const [noticias, setNoticias] = useState<{ bahia: any[]; agencia: any[]; folha: any[] }>({ bahia: [], agencia: [], folha: [] })
   const [loadingNoticias, setLoadingNoticias] = useState(true)
   const [clima, setClima] = useState<any>(null)
   const [cotacoes, setCotacoes] = useState<any>(null)
@@ -88,13 +88,14 @@ export default function HomePage() {
       .then(data => {
         setNoticias({
           bahia: data?.noticias?.bahia || [],
-          agencia: data?.noticias?.agencia || []
+          agencia: data?.noticias?.agencia || [],
+          folha: data?.noticias?.folha || []
         })
         setLoadingNoticias(false)
       })
       .catch(err => {
         console.error('Erro ao carregar notícias:', err)
-        setNoticias({ bahia: [], agencia: [] })
+        setNoticias({ bahia: [], agencia: [], folha: [] })
         setLoadingNoticias(false)
       })
   }, [])
@@ -273,101 +274,12 @@ export default function HomePage() {
 
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* Header */}
-        <header className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg m-3 md:m-4 p-3 md:p-6 rounded-2xl">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4">
-            <div className="flex items-center justify-between w-full md:w-auto gap-4 md:gap-8">
-              <div className="relative w-auto h-16 md:h-18">
-                <Image
-                  src="/logo.png"
-                  alt="ITIV Logo"
-                  width={135}
-                  height={64}
-                  className="object-contain h-16 md:h-18 w-auto"
-                  priority
-                />
-              </div>
-              
-              {/* Menu Desktop */}
-              <nav className="hidden md:flex items-center gap-2">
-                <button
-                  onClick={() => setShowBIPanels(!showBIPanels)}
-                  className={`flex items-center gap-2 px-3 lg:px-4 py-2 text-sm lg:text-base font-medium transition-all rounded-lg ${
-                    showBIPanels 
-                      ? 'bg-gradient-to-r from-primary-red/10 via-primary-orange/10 to-primary-purple/10 text-gray-900 border-b-2 border-primary-orange' 
-                      : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <span className="text-base lg:text-lg">📊</span>
-                  <span>Painéis do B.I.</span>
-                </button>
-              </nav>
-
-              {/* Botão Menu Mobile */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  {mobileMenuOpen ? (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  ) : (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  )}
-                </svg>
-              </button>
-            </div>
-            
-            {/* Info Usuário Desktop */}
-            {/* Info Usuário Desktop */}
-            <div className="hidden md:flex items-center gap-3 lg:gap-4">
-              <div className="text-right">
-                <p className="text-gray-800 font-medium text-sm lg:text-base">{session.user?.name}</p>
-                <p className="text-gray-600 text-xs lg:text-sm">{session.user?.email}</p>
-              </div>
-              <button
-                onClick={() => signOut({ callbackUrl: '/login' })}
-                className="px-3 lg:px-4 py-2 bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple text-white font-semibold rounded-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
-              >
-                Sair
-              </button>
-            </div>
-          </div>
-
-          {/* Menu Mobile Dropdown */}
-          {mobileMenuOpen && (
-            <div className="md:hidden mt-3 pt-3 border-t border-gray-200">
-              <nav className="space-y-2">
-                <button
-                  onClick={() => {
-                    setShowBIPanels(!showBIPanels)
-                    setMobileMenuOpen(false)
-                  }}
-                  className={`w-full flex items-center gap-2 px-3 py-3 text-sm font-medium transition-all rounded-lg ${
-                    showBIPanels 
-                      ? 'bg-gradient-to-r from-primary-red/10 via-primary-orange/10 to-primary-purple/10 text-gray-900 border-l-4 border-primary-orange' 
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  <span className="text-base">📊</span>
-                  <span>Painéis do B.I.</span>
-                </button>
-              </nav>
-              
-              <div className="mt-3 pt-3 border-t border-gray-200">
-                <div className="mb-3">
-                  <p className="text-gray-800 font-medium text-sm">{session.user?.name}</p>
-                  <p className="text-gray-600 text-xs">{session.user?.email}</p>
-                </div>
-                <button
-                  onClick={() => signOut({ callbackUrl: '/login' })}
-                  className="w-full px-3 py-2 bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple text-white font-semibold rounded-lg hover:shadow-xl transition-all duration-300"
-                >
-                  Sair
-                </button>
-              </div>
-            </div>
-          )}
-        </header>
+        <AppHeader
+          session={session}
+          mode="dashboard"
+          onBiAction={() => setShowBIPanels(prev => !prev)}
+          biActionActive={showBIPanels}
+        />
 
         {/* Main Content */}
         <main className="p-3 md:p-6 flex-1">
@@ -718,9 +630,14 @@ export default function HomePage() {
                           <p className="text-sm md:text-base text-gray-600">Acompanhe as principais informações em tempo real.</p>
                         </div>
                         <div className="flex items-center gap-2 bg-gray-100 rounded-xl p-1 w-fit flex-wrap">
-                          {(['bahia', 'agencia'] as FonteNoticias[]).map(fonte => {
+                          {(['bahia', 'agencia', 'folha'] as FonteNoticias[]).map(fonte => {
                             const isActive = fonteNoticias === fonte
-                            const label = fonte === 'bahia' ? 'Governo da Bahia' : 'Agência Brasil Economia'
+                            const label =
+                              fonte === 'bahia'
+                                ? 'Governo da Bahia'
+                                : fonte === 'agencia'
+                                  ? 'Agência Brasil Economia'
+                                  : 'Folha de S.Paulo - Poder'
                             return (
                               <button
                                 key={fonte}
@@ -735,7 +652,13 @@ export default function HomePage() {
                           })}
                         </div>
                         <a
-                          href={fonteNoticias === 'bahia' ? 'https://www.ba.gov.br/comunicacao/noticias' : 'https://agenciabrasil.ebc.com.br/economia'}
+                          href={
+                            fonteNoticias === 'bahia'
+                              ? 'https://www.ba.gov.br/comunicacao/noticias'
+                              : fonteNoticias === 'agencia'
+                                ? 'https://agenciabrasil.ebc.com.br/economia'
+                                : 'https://www.folha.uol.com.br/poder/'
+                          }
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-primary-orange hover:text-primary-red transition-colors text-xs md:text-sm font-medium flex items-center gap-2 md:ml-auto"
@@ -752,7 +675,12 @@ export default function HomePage() {
                           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-orange"></div>
                         </div>
                       ) : (() => {
-                        const noticiasAtuais = fonteNoticias === 'bahia' ? noticias.bahia : noticias.agencia
+                        const noticiasAtuais =
+                          fonteNoticias === 'bahia'
+                            ? noticias.bahia
+                            : fonteNoticias === 'agencia'
+                              ? noticias.agencia
+                              : noticias.folha
 
                         if (!noticiasAtuais || noticiasAtuais.length === 0) {
                           return (
@@ -766,7 +694,12 @@ export default function HomePage() {
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                             {noticiasAtuais.slice(0, 6).map((noticia: any) => {
                               const imageSrc = noticia.image && noticia.image !== '' ? noticia.image : '/logo.png'
-                              const sourceLabel = noticia.source === 'bahia' ? 'Governo da Bahia' : 'Agência Brasil'
+                              const sourceLabel =
+                                noticia.source === 'bahia'
+                                  ? 'Governo da Bahia'
+                                  : noticia.source === 'agencia'
+                                    ? 'Agência Brasil'
+                                    : 'Folha de S.Paulo'
 
                               return (
                                 <button
