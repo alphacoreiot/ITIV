@@ -7,7 +7,7 @@ import Image from 'next/image'
 import Chatbot from '@/components/Chatbot'
 import AppHeader from '@/components/AppHeader'
 
-type FonteNoticias = 'bahia' | 'agencia' | 'folha'
+type FonteNoticias = 'bahia' | 'agencia'
 
 type ResumoRefisResponse = {
   success: boolean
@@ -57,7 +57,7 @@ export default function HomePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [showBIPanels, setShowBIPanels] = useState(false)
-  const [noticias, setNoticias] = useState<{ bahia: any[]; agencia: any[]; folha: any[] }>({ bahia: [], agencia: [], folha: [] })
+  const [noticias, setNoticias] = useState<{ bahia: any[]; agencia: any[] }>({ bahia: [], agencia: [] })
   const [loadingNoticias, setLoadingNoticias] = useState(true)
   const [clima, setClima] = useState<any>(null)
   const [cotacoes, setCotacoes] = useState<any>(null)
@@ -88,14 +88,13 @@ export default function HomePage() {
       .then(data => {
         setNoticias({
           bahia: data?.noticias?.bahia || [],
-          agencia: data?.noticias?.agencia || [],
-          folha: data?.noticias?.folha || []
+          agencia: data?.noticias?.agencia || []
         })
         setLoadingNoticias(false)
       })
       .catch(err => {
         console.error('Erro ao carregar notícias:', err)
-        setNoticias({ bahia: [], agencia: [], folha: [] })
+        setNoticias({ bahia: [], agencia: [] })
         setLoadingNoticias(false)
       })
   }, [])
@@ -630,14 +629,9 @@ export default function HomePage() {
                           <p className="text-sm md:text-base text-gray-600">Acompanhe as principais informações em tempo real.</p>
                         </div>
                         <div className="flex items-center gap-2 bg-gray-100 rounded-xl p-1 w-fit flex-wrap">
-                          {(['bahia', 'agencia', 'folha'] as FonteNoticias[]).map(fonte => {
+                          {(['bahia', 'agencia'] as FonteNoticias[]).map(fonte => {
                             const isActive = fonteNoticias === fonte
-                            const label =
-                              fonte === 'bahia'
-                                ? 'Governo da Bahia'
-                                : fonte === 'agencia'
-                                  ? 'Agência Brasil Economia'
-                                  : 'Folha de S.Paulo - Poder'
+                            const label = fonte === 'bahia' ? 'Governo da Bahia' : 'Agência Brasil Economia'
                             return (
                               <button
                                 key={fonte}
@@ -655,9 +649,7 @@ export default function HomePage() {
                           href={
                             fonteNoticias === 'bahia'
                               ? 'https://www.ba.gov.br/comunicacao/noticias'
-                              : fonteNoticias === 'agencia'
-                                ? 'https://agenciabrasil.ebc.com.br/economia'
-                                : 'https://www.folha.uol.com.br/poder/'
+                              : 'https://agenciabrasil.ebc.com.br/economia'
                           }
                           target="_blank"
                           rel="noopener noreferrer"
@@ -675,12 +667,7 @@ export default function HomePage() {
                           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-orange"></div>
                         </div>
                       ) : (() => {
-                        const noticiasAtuais =
-                          fonteNoticias === 'bahia'
-                            ? noticias.bahia
-                            : fonteNoticias === 'agencia'
-                              ? noticias.agencia
-                              : noticias.folha
+                        const noticiasAtuais = fonteNoticias === 'bahia' ? noticias.bahia : noticias.agencia
 
                         if (!noticiasAtuais || noticiasAtuais.length === 0) {
                           return (
@@ -694,12 +681,7 @@ export default function HomePage() {
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                             {noticiasAtuais.slice(0, 6).map((noticia: any) => {
                               const imageSrc = noticia.image && noticia.image !== '' ? noticia.image : '/logo.png'
-                              const sourceLabel =
-                                noticia.source === 'bahia'
-                                  ? 'Governo da Bahia'
-                                  : noticia.source === 'agencia'
-                                    ? 'Agência Brasil'
-                                    : 'Folha de S.Paulo'
+                              const sourceLabel = noticia.source === 'bahia' ? 'Governo da Bahia' : 'Agência Brasil'
 
                               return (
                                 <button
