@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import Image from 'next/image'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -119,7 +118,7 @@ export default function Chatbot() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-50 w-16 h-16 bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple rounded-full shadow-2xl hover:scale-110 transition-transform duration-300 flex items-center justify-center group"
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple rounded-full shadow-2xl hover:scale-110 transition-transform duration-300 flex items-center justify-center group"
           aria-label="Abrir chatbot"
         >
           <svg 
@@ -140,7 +139,7 @@ export default function Chatbot() {
 
       {/* Janela do Chat */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 w-96 h-[600px] bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 flex flex-col">
+        <div className="fixed bottom-4 inset-x-4 sm:inset-auto sm:bottom-6 sm:right-6 z-50 h-[70vh] max-h-[90vh] sm:h-[600px] bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 flex flex-col sm:w-96">
           {/* Header */}
           <div className="bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple p-4 rounded-t-2xl flex items-center justify-between">
             <div className="flex items-center gap-3">
