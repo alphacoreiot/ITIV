@@ -450,50 +450,89 @@ export default function HomePage() {
 
                           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5">
                             <div className="bg-gradient-to-br from-primary-orange/10 via-primary-red/5 to-white border border-primary-orange/30 rounded-xl p-4 md:p-5 shadow-sm">
-                              <h4 className="text-sm md:text-base font-semibold text-gray-800 mb-3">Situação dos Acordos</h4>
-                              <div className="overflow-x-auto">
-                                <table className="w-full text-left text-xs md:text-sm text-gray-700">
-                                  <thead>
-                                    <tr className="border-b border-white/40">
-                                      <th className="py-2 pr-2 font-medium">Status</th>
-                                      <th className="py-2 pr-2 font-medium text-right">Quantidade</th>
-                                      <th className="py-2 font-medium text-right">Valor negociado</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody className="divide-y divide-white/40">
-                                    {refisResumo.statusResumo.map(item => (
-                                      <tr key={item.status}>
-                                        <td className="py-2 pr-2 font-semibold text-gray-800">{item.status}</td>
-                                        <td className="py-2 pr-2 text-right">{formatNumber(item.quantidade)}</td>
-                                        <td className="py-2 text-right">{formatCurrency(item.valorNegociado)}</td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
+                              <h4 className="text-sm md:text-base font-semibold text-gray-800 mb-4">📊 Resumo Executivo</h4>
+                              <div className="space-y-4">
+                                {/* Adesões */}
+                                <div>
+                                  <p className="text-xs font-semibold text-gray-600 mb-2">💼 ADESÕES:</p>
+                                  <div className="space-y-1 text-xs text-gray-700">
+                                    <div className="flex justify-between">
+                                      <span>Total de acordos:</span>
+                                      <span className="font-semibold">{formatNumber(refisResumo.resumo.totalRegistros)}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span>Acordos ativos:</span>
+                                      <span className="font-semibold">{formatNumber(refisResumo.resumo.acordosAtivos)}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span>Em risco:</span>
+                                      <span className="font-semibold text-red-600">{formatNumber(refisResumo.resumo.acordosEmRisco)}</span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Valores */}
+                                <div className="pt-2 border-t border-gray-200">
+                                  <p className="text-xs font-semibold text-gray-600 mb-2">💰 VALORES:</p>
+                                  <div className="space-y-1 text-xs text-gray-700">
+                                    <div className="flex justify-between">
+                                      <span>Negociado:</span>
+                                      <span className="font-semibold">{formatCurrency(refisResumo.resumo.valorTotal)}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span>Arrecadado:</span>
+                                      <span className="font-semibold text-green-600">{formatCurrency(refisResumo.resumo.valorArrecadado)}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span>Em aberto:</span>
+                                      <span className="font-semibold text-orange-600">{formatCurrency(refisResumo.resumo.valorEmAberto)}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span>Taxa de arrecadação:</span>
+                                      <span className="font-semibold text-blue-600">
+                                        {formatPercent((refisResumo.resumo.valorArrecadado / refisResumo.resumo.valorTotal) * 100)}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
                             </div>
 
                             <div className="bg-gradient-to-br from-primary-purple/10 via-primary-orange/10 to-white border border-primary-purple/30 rounded-xl p-4 md:p-5 shadow-sm">
-                              <h4 className="text-sm md:text-base font-semibold text-gray-800 mb-3">Resumo Financeiro</h4>
-                              <div className="overflow-x-auto">
-                                <table className="w-full text-left text-xs md:text-sm text-gray-700">
-                                  <thead>
-                                    <tr className="border-b border-white/40">
-                                      <th className="py-2 pr-2 font-medium">Situação</th>
-                                      <th className="py-2 pr-2 font-medium text-right">Quantidade</th>
-                                      <th className="py-2 font-medium text-right">Valor</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody className="divide-y divide-white/40">
-                                    {refisResumo.statusFinanceiro.map(item => (
-                                      <tr key={item.situacao}>
-                                        <td className="py-2 pr-2 font-semibold text-gray-800">{item.situacao}</td>
-                                        <td className="py-2 pr-2 text-right">{formatNumber(item.quantidade)}</td>
-                                        <td className="py-2 text-right">{formatCurrency(item.valorNegociado)}</td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
+                              <h4 className="text-sm md:text-base font-semibold text-gray-800 mb-4">📑 Parcelamento</h4>
+                              <div className="space-y-3">
+                                <div className="flex justify-between items-center">
+                                  <span className="text-xs md:text-sm text-gray-600">Total de parcelas:</span>
+                                  <span className="text-sm md:text-base font-bold text-gray-800">
+                                    {formatNumber(refisResumo.resumo.parcelasPagas + refisResumo.resumo.parcelasAbertas)}
+                                  </span>
+                                </div>
+                                
+                                <div className="flex justify-between items-center">
+                                  <span className="text-xs md:text-sm text-gray-600">Pagas:</span>
+                                  <span className="text-sm md:text-base font-bold text-green-600">
+                                    {formatNumber(refisResumo.resumo.parcelasPagas)} ({formatPercent((refisResumo.resumo.parcelasPagas / (refisResumo.resumo.parcelasPagas + refisResumo.resumo.parcelasAbertas)) * 100)})
+                                  </span>
+                                </div>
+                                
+                                <div className="flex justify-between items-center">
+                                  <span className="text-xs md:text-sm text-gray-600">Abertas:</span>
+                                  <span className="text-sm md:text-base font-bold text-orange-600">
+                                    {formatNumber(refisResumo.resumo.parcelasAbertas)}
+                                  </span>
+                                </div>
+
+                                {/* Barra de progresso */}
+                                <div className="pt-2">
+                                  <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                                    <div 
+                                      className="h-full bg-gradient-to-r from-green-500 to-green-600 transition-all duration-500"
+                                      style={{ 
+                                        width: `${((refisResumo.resumo.parcelasPagas / (refisResumo.resumo.parcelasPagas + refisResumo.resumo.parcelasAbertas)) * 100).toFixed(1)}%` 
+                                      }}
+                                    ></div>
+                                  </div>
+                                </div>
                               </div>
                             </div>
 
