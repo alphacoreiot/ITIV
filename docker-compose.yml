@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # Aplicação Next.js
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: itiv-dashboard
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_HOST=10.0.20.61
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=metabase
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=CEnIg8shcyeF
+    restart: unless-stopped
+    networks:
+      - itiv-network
+    depends_on:
+      - postgres
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # PostgreSQL (opcional - caso queira rodar DB local)
+  postgres:
+    image: postgres:15-alpine
+    container_name: itiv-postgres
+    environment:
+      - POSTGRES_DB=metabase
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=CEnIg8shcyeF
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - itiv-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  itiv-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local
