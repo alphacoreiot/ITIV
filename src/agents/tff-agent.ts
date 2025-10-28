@@ -352,7 +352,9 @@ ${Object.values(TFF_OPTIONS).map((opt, index) =>
   `${index + 1}. ${opt.label}\n   ${opt.description}`
 ).join('\n\n')}
 
-Digite o número da opção desejada ou "voltar" para o menu principal.`
+0. 🔙 Voltar ao menu principal
+
+Digite o número da opção desejada:`
 }
 
 // Funções auxiliares de formatação

@@ -44,7 +44,8 @@ Digite o número da opção (1, 2 ou 3)`
 function parseUserInput(input: string, state: ChatState): { action: string; value?: string } {
   const inputLower = input.toLowerCase().trim()
   
-  if (inputLower === 'voltar' || inputLower === 'menu' || inputLower === 'inicio') {
+  // Opção 0 sempre volta ao menu principal
+  if (inputLower === '0' || inputLower === 'voltar' || inputLower === 'menu' || inputLower === 'inicio') {
     return { action: 'menu_principal' }
   }
 
@@ -129,7 +130,7 @@ export async function POST(request: Request) {
             ? await executeREFISQuery(value, dbPool)
             : await executeTFFQuery(value, dbPool)
           
-          response += '\n\nDigite um número para nova análise ou "voltar" para o menu principal'
+          response += '\n\n0. Voltar ao menu principal\n\nDigite um número para escolher:'
           
           newState = { ...currentState, step: 'menu_agente' }
         } catch (error: any) {
