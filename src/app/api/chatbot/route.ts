@@ -34,7 +34,7 @@ function getMainMenu(): string {
 
 Escolha um tributo:
 
-1. IPTU - Imposto Predial e Territorial Urbano
+1. IPTU - Imposto Predial + COSIP + TRSD
 2. REFIS - Programa de Recuperação Fiscal 2025
 3. TFF - Taxa de Fiscalização de Funcionamento
 

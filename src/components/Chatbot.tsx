@@ -21,7 +21,7 @@ export default function Chatbot() {
 
 Escolha um tributo para consultar:
 
-1️⃣ IPTU - Imposto Predial e Territorial Urbano
+1️⃣ IPTU - Imposto Predial + COSIP + TRSD
 2️⃣ REFIS - Programa de Recuperação Fiscal 2025
 3️⃣ TFF - Taxa de Fiscalização de Funcionamento
 

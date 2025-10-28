@@ -12,17 +12,16 @@ export const IPTU_OPTIONS: Record<string, IPTUOption> = {
   resumo_geral: {
     id: 'resumo_geral',
     label: '📊 Resumo Geral 2025',
-    description: 'Visão completa: total arrecadado, contribuintes, cota única vs parcelado',
+    description: 'Visão completa: total arrecadado (IPTU+COSIP+TRSD), contribuintes, cota única vs parcelado',
     query: `
       SELECT 
-        tributo,
         cota_unica,
         ROUND(COALESCE(SUM(vl_arrecadado), 0)::numeric, 2) as total_arrecadado,
         COUNT(DISTINCT inscricao_municipal) as qtd_contribuintes,
         ROUND(AVG(vl_arrecadado)::numeric, 2) as media_por_contribuinte
       FROM tb_arrec_iptu_2025
-      WHERE ano_base = 2025 AND tributo = 'IPTU'
-      GROUP BY tributo, cota_unica
+      WHERE ano_base = 2025 AND tributo IN ('IPTU', 'COSIP', 'TRSD')
+      GROUP BY cota_unica
       ORDER BY cota_unica DESC
     `,
     formatResponse: (rows) => {
@@ -37,6 +36,7 @@ export const IPTU_OPTIONS: Record<string, IPTUOption> = {
       const contribGeral = Number(cotaUnica?.qtd_contribuintes || 0) + Number(parcelado?.qtd_contribuintes || 0)
 
       return `📊 **IPTU 2025 - Resumo Geral**
+ℹ️ *Inclui IPTU + COSIP + TRSD*
 
 💰 **Total Arrecadado**: ${formatCurrency(totalGeral)}
 👥 **Contribuintes**: ${formatNumber(contribGeral)}
@@ -58,7 +58,7 @@ export const IPTU_OPTIONS: Record<string, IPTUOption> = {
   arrecadacao_por_bairro: {
     id: 'arrecadacao_por_bairro',
     label: '🏘️ Arrecadação por Bairro',
-    description: 'Top 10 bairros que mais arrecadaram IPTU em 2025',
+    description: 'Top 10 bairros que mais arrecadaram (IPTU+COSIP+TRSD) em 2025',
     query: `
       SELECT 
         bairro,
@@ -66,7 +66,7 @@ export const IPTU_OPTIONS: Record<string, IPTUOption> = {
         ROUND(SUM(vl_arrecadado)::numeric, 2) as total_arrecadado,
         ROUND(AVG(vl_arrecadado)::numeric, 2) as media_por_contribuinte
       FROM tb_arrec_iptu_2025
-      WHERE tributo = 'IPTU' AND ano_base = 2025
+      WHERE tributo IN ('IPTU', 'COSIP', 'TRSD') AND ano_base = 2025
       GROUP BY bairro
       ORDER BY total_arrecadado DESC
       LIMIT 10
@@ -92,14 +92,14 @@ export const IPTU_OPTIONS: Record<string, IPTUOption> = {
   historico_5_anos: {
     id: 'historico_5_anos',
     label: '📈 Histórico 2020-2025',
-    description: 'Evolução da arrecadação de IPTU nos últimos 5 anos',
+    description: 'Evolução da arrecadação (IPTU+COSIP+TRSD) nos últimos 5 anos',
     query: `
       SELECT 
         ano_base,
         COUNT(DISTINCT inscricao_municipal) as qtd_contribuintes,
         ROUND(SUM(vl_arrecadado)::numeric, 2) as vl_total_arrecadado
       FROM tb_arrec_iptu_5_anos
-      WHERE tributo = 'IPTU'
+      WHERE tributo IN ('IPTU', 'COSIP', 'TRSD')
       GROUP BY ano_base
       ORDER BY ano_base
     `,
@@ -206,14 +206,14 @@ export const IPTU_OPTIONS: Record<string, IPTUOption> = {
   comparativo_2024_2025: {
     id: 'comparativo_2024_2025',
     label: '🔄 Comparativo 2024 x 2025',
-    description: 'Análise comparativa da arrecadação entre 2024 e 2025',
+    description: 'Análise comparativa da arrecadação (IPTU+COSIP+TRSD) entre 2024 e 2025',
     query: `
       SELECT 
         ano_base,
         COUNT(DISTINCT inscricao_municipal) as qtd_contribuintes,
         ROUND(SUM(vl_arrecadado)::numeric, 2) as total_arrecadado
       FROM tb_arrec_iptu_2024_2025
-      WHERE tributo = 'IPTU'
+      WHERE tributo IN ('IPTU', 'COSIP', 'TRSD')
       GROUP BY ano_base
       ORDER BY ano_base
     `,
@@ -232,7 +232,8 @@ export const IPTU_OPTIONS: Record<string, IPTUOption> = {
       const crescimentoValor = ((Number(ano2025.total_arrecadado) / Number(ano2024.total_arrecadado) - 1) * 100)
       const crescimentoContrib = ((Number(ano2025.qtd_contribuintes) / Number(ano2024.qtd_contribuintes) - 1) * 100)
 
-      return `🔄 **Comparativo IPTU 2024 x 2025**
+      return `🔄 **Comparativo 2024 x 2025**
+ℹ️ *Inclui IPTU + COSIP + TRSD*
 
 **2024:**
 • 💰 Arrecadado: ${formatCurrency(ano2024.total_arrecadado)}
@@ -268,7 +269,7 @@ export async function executeIPTUQuery(optionId: string, pool: Pool): Promise<st
 }
 
 export function getIPTUMenu(): string {
-  return `🏠 **Especialista em IPTU - Escolha uma opção:**
+  return `🏠 **Especialista em IPTU (IPTU + COSIP + TRSD) - Escolha uma opção:**
 
 ${Object.values(IPTU_OPTIONS).map((opt, index) => 
   `${index + 1}. ${opt.label}\n   ${opt.description}`
