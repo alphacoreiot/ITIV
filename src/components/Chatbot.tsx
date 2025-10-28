@@ -7,16 +7,30 @@ interface Message {
   content: string
 }
 
+interface ChatState {
+  currentAgent?: 'iptu' | 'refis' | 'tff'
+  step: 'menu_principal' | 'menu_agente' | 'executando'
+}
+
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: 'Especialista em Gestão Tributária à disposição. Consulte dados de TFF e IPTU para tomada de decisão.'
+      content: `Bem-vindo ao Sistema de Análise Tributária de Camaçari! 🏛️
+
+Escolha um tributo para consultar:
+
+1️⃣ IPTU - Imposto Predial e Territorial Urbano
+2️⃣ REFIS - Programa de Recuperação Fiscal 2025
+3️⃣ TFF - Taxa de Fiscalização de Funcionamento
+
+Digite o número da opção desejada (1, 2 ou 3)`
     }
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [chatState, setChatState] = useState<ChatState>({ step: 'menu_principal' })
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -35,72 +49,41 @@ export default function Chatbot() {
     setInput('')
     setIsLoading(true)
 
-    // Adicionar mensagem de processamento imediatamente
-    const thinkingMsg: Message = {
-      role: 'assistant',
-      content: '🔍 Analisando sua pergunta...'
-    }
-    setMessages(prev => [...prev, thinkingMsg])
-
-    // Timeout de 60 segundos
-    const timeoutId = setTimeout(() => {
-      setIsLoading(false)
-      setMessages(prev => {
-        const lastMsg = prev[prev.length - 1]
-        if (lastMsg?.content?.includes('🔍')) {
-          return [...prev.slice(0, -1), {
-            role: 'assistant',
-            content: '⏱️ A consulta está demorando mais que o esperado. Tente novamente ou simplifique a pergunta.'
-          }]
-        }
-        return prev
-      })
-    }, 60000)
-
     try {
-      console.log('📤 Enviando pergunta:', userMessage.content)
-      
-      // Chamada única: o backend faz todo o trabalho
       const response = await fetch('/api/chatbot', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: [...messages, userMessage]
+          messages: [...messages, userMessage],
+          state: chatState
         })
       })
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+        throw new Error(`HTTP ${response.status}`)
       }
 
       const data = await response.json()
-      console.log('📥 Resposta recebida')
 
       if (data.error) {
         throw new Error(data.error)
       }
 
-      // Remover mensagem de "analisando"
-      setMessages(prev => prev.slice(0, -1))
-
-      // Adicionar resposta final
       setMessages(prev => [...prev, data.message])
       
+      // Atualizar estado do chat
+      if (data.state) {
+        setChatState(data.state)
+      }
+      
     } catch (error: any) {
-      console.error('❌ Erro ao enviar mensagem:', error)
-      console.error('📋 Detalhes:', error.message)
+      console.error('Erro:', error)
       
-      // Remover mensagem de processamento
-      setMessages(prev => prev.slice(0, -1))
-      
-      // Mostrar erro amigável
-      const errorMsg = error.message || 'Erro desconhecido'
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: `❌ Desculpe, não consegui processar sua pergunta.\n\n${errorMsg.includes('HTTP') ? 'Erro de conexão com o servidor.' : errorMsg}\n\nPor favor, tente novamente.`
+        content: `Erro ao processar. Tente novamente.`
       }])
     } finally {
-      clearTimeout(timeoutId)
       setIsLoading(false)
     }
   }
