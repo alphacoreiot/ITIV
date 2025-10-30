@@ -8,7 +8,7 @@ interface Message {
 }
 
 interface ChatState {
-  currentAgent?: 'iptu' | 'refis' | 'tff'
+  currentAgent?: 'iptu' | 'refis' | 'tff' | 'refis_percentual'
   step: 'menu_principal' | 'menu_agente' | 'executando'
 }
 
@@ -25,8 +25,9 @@ Escolha um tributo para consultar:
 1️⃣ IPTU - Imposto Predial + COSIP + TRSD
 2️⃣ REFIS - Programa de Recuperação Fiscal 2025
 3️⃣ TFF - Taxa de Fiscalização de Funcionamento
+4️⃣ REFIS - Percentual de Entrada
 
-Digite o número da opção desejada (1, 2 ou 3)`
+Digite o número da opção desejada (1, 2, 3 ou 4)`
     }
   ])
   const [input, setInput] = useState('')

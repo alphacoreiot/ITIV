@@ -3,6 +3,7 @@ import { Pool } from 'pg'
 import { getIPTUMenu, executeIPTUQuery, IPTU_OPTIONS } from '@/agents/iptu-agent'
 import { getREFISMenu, executeREFISQuery, REFIS_OPTIONS } from '@/agents/refis-agent'
 import { getTFFMenu, executeTFFQuery, TFF_OPTIONS } from '@/agents/tff-agent'
+import { getRefisPercentualMenu, executeRefisPercentualQuery, REFIS_PERCENTUAL_OPTIONS } from '@/agents/refis-percentual-agent'
 
 let pool: Pool | null = null
 
@@ -25,7 +26,7 @@ interface ChatMessage {
 }
 
 interface ChatState {
-  currentAgent?: 'iptu' | 'refis' | 'tff'
+  currentAgent?: 'iptu' | 'refis' | 'tff' | 'refis_percentual'
   step: 'menu_principal' | 'menu_agente' | 'executando'
 }
 
@@ -37,8 +38,9 @@ Escolha um tributo:
 1. IPTU - Imposto Predial + COSIP + TRSD
 2. REFIS - Programa de Recuperação Fiscal 2025
 3. TFF - Taxa de Fiscalização de Funcionamento
+4. REFIS - Percentual de Entrada
 
-Digite o número da opção (1, 2 ou 3)`
+Digite o número da opção (1, 2, 3 ou 4)`
 }
 
 function parseUserInput(input: string, state: ChatState): { action: string; value?: string } {
@@ -53,11 +55,14 @@ function parseUserInput(input: string, state: ChatState): { action: string; valu
     if (inputLower === '1' || inputLower.includes('iptu')) {
       return { action: 'select_agent', value: 'iptu' }
     }
-    if (inputLower === '2' || inputLower.includes('refis')) {
+    if (inputLower === '2' || inputLower.includes('refis') && !inputLower.includes('percentual')) {
       return { action: 'select_agent', value: 'refis' }
     }
     if (inputLower === '3' || inputLower.includes('tff')) {
       return { action: 'select_agent', value: 'tff' }
+    }
+    if (inputLower === '4' || (inputLower.includes('refis') && inputLower.includes('percentual')) || inputLower.includes('entrada')) {
+      return { action: 'select_agent', value: 'refis_percentual' }
     }
     return { action: 'invalid' }
   }
@@ -68,7 +73,8 @@ function parseUserInput(input: string, state: ChatState): { action: string; valu
     if (!isNaN(num)) {
       const options = state.currentAgent === 'iptu' ? IPTU_OPTIONS :
                      state.currentAgent === 'refis' ? REFIS_OPTIONS :
-                     TFF_OPTIONS
+                     state.currentAgent === 'tff' ? TFF_OPTIONS :
+                     REFIS_PERCENTUAL_OPTIONS
       
       const optionKeys = Object.keys(options)
       if (num >= 1 && num <= optionKeys.length) {
@@ -107,10 +113,11 @@ export async function POST(request: Request) {
         break
 
       case 'select_agent':
-        const agent = value as 'iptu' | 'refis' | 'tff'
+        const agent = value as 'iptu' | 'refis' | 'tff' | 'refis_percentual'
         response = agent === 'iptu' ? getIPTUMenu() :
                    agent === 'refis' ? getREFISMenu() :
-                   getTFFMenu()
+                   agent === 'tff' ? getTFFMenu() :
+                   getRefisPercentualMenu()
         newState = { step: 'menu_agente', currentAgent: agent }
         break
 
@@ -128,7 +135,9 @@ export async function POST(request: Request) {
             ? await executeIPTUQuery(value, dbPool)
             : currentState.currentAgent === 'refis'
             ? await executeREFISQuery(value, dbPool)
-            : await executeTFFQuery(value, dbPool)
+            : currentState.currentAgent === 'tff'
+            ? await executeTFFQuery(value, dbPool)
+            : await executeRefisPercentualQuery(value, dbPool)
           
           response += '\n\n0. Voltar ao menu principal\n\nDigite um número para escolher:'
           
@@ -142,11 +151,12 @@ export async function POST(request: Request) {
       case 'invalid':
       default:
         if (currentState.step === 'menu_principal') {
-          response = 'Opção inválida! Digite 1, 2 ou 3.\n\n' + getMainMenu()
+          response = 'Opção inválida! Digite 1, 2, 3 ou 4.\n\n' + getMainMenu()
         } else if (currentState.step === 'menu_agente') {
           const agentMenu = currentState.currentAgent === 'iptu' ? getIPTUMenu() :
                            currentState.currentAgent === 'refis' ? getREFISMenu() :
-                           getTFFMenu()
+                           currentState.currentAgent === 'tff' ? getTFFMenu() :
+                           getRefisPercentualMenu()
           response = `Opção inválida!\n\n${agentMenu}`
         } else {
           response = 'Erro. Voltando ao menu principal.\n\n' + getMainMenu()

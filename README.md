@@ -93,7 +93,7 @@ docker-compose down             # Parar
 
 ## 🤖 Chatbot
 
-Sistema de navegação por menu com 3 agentes especializados:
+Sistema de navegação por menu com 4 agentes especializados:
 
 ### 1️⃣ IPTU (Imposto Predial + COSIP + TRSD)
 - Resumo geral 2025
@@ -119,6 +119,16 @@ Sistema de navegação por menu com 3 agentes especializados:
 - Maiores contribuintes
 - Inadimplentes
 - Status STM
+
+### 4️⃣ REFIS - Percentual de Entrada
+- Resumo geral por percentual (10% a 100%)
+- Entrada 100% - À vista (quitados vs inadimplentes)
+- Top 10 quitados 100%
+- Inadimplentes 100% (priorização de cobranças)
+- Análise de inadimplência por percentual
+- Top 20 maiores adesões
+- PF vs PJ por percentual
+- Status do REFIS por percentual
 
 ## 📊 Funcionalidades
 
