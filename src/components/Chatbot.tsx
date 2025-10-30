@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import MarkdownMessage from './MarkdownMessage'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -178,15 +179,19 @@ Digite o número da opção desejada (1, 2, 3 ou 4)`
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg p-3 ${
+                  className={`max-w-[85%] rounded-lg p-3 ${
                     message.role === 'user'
                       ? 'bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple text-white'
-                      : 'bg-gray-100 text-gray-800'
+                      : 'bg-gray-50 text-gray-800 border border-gray-200'
                   }`}
                 >
-                  <div className="text-sm whitespace-pre-wrap break-words">
-                    {message.content}
-                  </div>
+                  {message.role === 'assistant' ? (
+                    <MarkdownMessage content={message.content} />
+                  ) : (
+                    <div className="text-sm whitespace-pre-wrap break-words">
+                      {message.content}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
