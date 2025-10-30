@@ -297,6 +297,22 @@ export default function HomePage() {
                     Business Intelligence para acompanhamento dos acordos do REFIS
                   </p>
                 </button>
+
+                {/* Card Painel BI REFIS - Percentuais de Entrada */}
+                <button 
+                  onClick={() => router.push('/bi-refis-percentuais')}
+                  className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-5 md:p-7 hover:scale-105 transition-transform duration-300 cursor-pointer text-left"
+                >
+                  <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
+                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-lg bg-gradient-to-br from-blue-400/30 to-indigo-400/20 flex items-center justify-center">
+                      <span className="text-2xl md:text-3xl">📊</span>
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-bold text-gray-800">Painel BI REFIS</h3>
+                  </div>
+                  <p className="text-gray-600 text-sm md:text-base">
+                    Análise de Percentuais de Entrada do REFIS 2025
+                  </p>
+                </button>
               </div>
             </div>
           ) : (
