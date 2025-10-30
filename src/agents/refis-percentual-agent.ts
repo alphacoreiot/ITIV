@@ -368,16 +368,17 @@ export const REFIS_PERCENTUAL_OPTIONS: Record<string, RefisPercentualOption> = {
 
 export function getRefisPercentualMenu(): string {
   const options = Object.values(REFIS_PERCENTUAL_OPTIONS)
+  const emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣']
   
   let menu = '📊 **REFIS - Análise de Percentual de Entrada 2025**\n\n'
   menu += 'Escolha uma análise:\n\n'
   
   options.forEach((option, index) => {
-    menu += `${index + 1}. ${option.label}\n`
+    menu += `${emojis[index]} ${option.label}\n`
     menu += `   ${option.description}\n\n`
   })
   
-  menu += '0. 🔙 Voltar ao menu principal\n\n'
+  menu += '0️⃣ Voltar ao menu principal\n\n'
   menu += 'Digite o número da opção desejada:'
   
   return menu

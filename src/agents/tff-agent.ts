@@ -346,13 +346,17 @@ export async function executeTFFQuery(optionId: string, pool: Pool): Promise<str
 }
 
 export function getTFFMenu(): string {
-  return `🏢 **Especialista em TFF - Escolha uma opção:**
+  const emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣']
+  
+  return `🏢 **Especialista em TFF**
+
+Escolha uma opção:
 
 ${Object.values(TFF_OPTIONS).map((opt, index) => 
-  `${index + 1}. ${opt.label}\n   ${opt.description}`
+  `${emojis[index]} ${opt.label}\n   ${opt.description}`
 ).join('\n\n')}
 
-0. 🔙 Voltar ao menu principal
+0️⃣ Voltar ao menu principal
 
 Digite o número da opção desejada:`
 }

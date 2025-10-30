@@ -31,16 +31,16 @@ interface ChatState {
 }
 
 function getMainMenu(): string {
-  return `Bem-vindo ao Sistema de Análise Tributária de Camaçari!
+  return `Bem-vindo ao Sistema de Análise Tributária de Camaçari! 🏛️
 
 Escolha um tributo:
 
-1. IPTU - Imposto Predial + COSIP + TRSD
-2. REFIS - Programa de Recuperação Fiscal 2025
-3. TFF - Taxa de Fiscalização de Funcionamento
-4. REFIS - Percentual de Entrada
+1️⃣ IPTU - Imposto Predial + COSIP + TRSD
+2️⃣ REFIS - Programa de Recuperação Fiscal 2025
+3️⃣ TFF - Taxa de Fiscalização de Funcionamento
+4️⃣ REFIS - Percentual de Entrada
 
-Digite o número da opção (1, 2, 3 ou 4)`
+Digite o número da opção desejada (1, 2, 3 ou 4)`
 }
 
 function parseUserInput(input: string, state: ChatState): { action: string; value?: string } {
@@ -139,7 +139,7 @@ export async function POST(request: Request) {
             ? await executeTFFQuery(value, dbPool)
             : await executeRefisPercentualQuery(value, dbPool)
           
-          response += '\n\n0. Voltar ao menu principal\n\nDigite um número para escolher:'
+          response += '\n\n0️⃣ Voltar ao menu principal\n\nDigite um número para escolher:'
           
           newState = { ...currentState, step: 'menu_agente' }
         } catch (error: any) {

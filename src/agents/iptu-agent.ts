@@ -269,13 +269,17 @@ export async function executeIPTUQuery(optionId: string, pool: Pool): Promise<st
 }
 
 export function getIPTUMenu(): string {
-  return `🏠 **Especialista em IPTU (IPTU + COSIP + TRSD) - Escolha uma opção:**
+  const emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣']
+  
+  return `🏠 **Especialista em IPTU (IPTU + COSIP + TRSD)**
+
+Escolha uma opção:
 
 ${Object.values(IPTU_OPTIONS).map((opt, index) => 
-  `${index + 1}. ${opt.label}\n   ${opt.description}`
+  `${emojis[index]} ${opt.label}\n   ${opt.description}`
 ).join('\n\n')}
 
-0. 🔙 Voltar ao menu principal
+0️⃣ Voltar ao menu principal
 
 Digite o número da opção desejada:`
 }

@@ -96,7 +96,7 @@ export default function MarkdownMessage({ content }: MarkdownMessageProps) {
       }
 
       // Opções numeradas do menu (ex: 1️⃣ IPTU - ...)
-      if (line.match(/^[1-9]️⃣\s+/)) {
+      if (line.match(/^[0-9]️⃣\s+/)) {
         elements.push(
           <div key={key} className="my-2 font-medium text-gray-800">
             {line}

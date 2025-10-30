@@ -314,13 +314,17 @@ export async function executeREFISQuery(optionId: string, pool: Pool): Promise<s
 }
 
 export function getREFISMenu(): string {
-  return `💼 **Especialista em REFIS - Escolha uma opção:**
+  const emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣']
+  
+  return `💼 **Especialista em REFIS 2025**
+
+Escolha uma opção:
 
 ${Object.values(REFIS_OPTIONS).map((opt, index) => 
-  `${index + 1}. ${opt.label}\n   ${opt.description}`
+  `${emojis[index]} ${opt.label}\n   ${opt.description}`
 ).join('\n\n')}
 
-0. 🔙 Voltar ao menu principal
+0️⃣ Voltar ao menu principal
 
 Digite o número da opção desejada:`
 }
