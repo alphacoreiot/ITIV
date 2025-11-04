@@ -508,7 +508,38 @@ export default function HomePage() {
                           {/* Conteúdo baseado na sub-aba selecionada */}
                           {subAbaRefis === 'resumo' ? (
                             /* RESUMO GERAL */
-                            <div className="space-y-5 md:space-y-6">
+                            <div id="painel-resumo-geral" className="space-y-5 md:space-y-6">
+                              <style>{`
+                                #painel-resumo-geral:fullscreen {
+                                  background: linear-gradient(to bottom right, rgb(249 250 251), rgb(255 255 255));
+                                  padding: 2rem;
+                                  overflow-y: auto;
+                                }
+                              `}</style>
+                              
+                              {/* Botão Tela Cheia */}
+                              <div className="flex justify-end mb-2">
+                                <button
+                                  onClick={() => {
+                                    const element = document.getElementById('painel-resumo-geral')
+                                    if (element) {
+                                      if (document.fullscreenElement) {
+                                        document.exitFullscreen()
+                                      } else {
+                                        element.requestFullscreen().catch(err => {
+                                          console.error('Erro ao entrar em tela cheia:', err)
+                                        })
+                                      }
+                                    }
+                                  }}
+                                  className="px-4 py-2 bg-gradient-to-r from-primary-orange to-primary-red hover:from-primary-red hover:to-primary-orange text-white rounded-lg shadow-md transition-all duration-200 flex items-center gap-2 text-sm font-semibold hover:scale-105"
+                                  title="Alternar Tela Cheia (ESC para sair)"
+                                >
+                                  <span className="text-lg">⛶</span>
+                                  <span className="hidden sm:inline">Tela Cheia</span>
+                                </button>
+                              </div>
+
                               {quickResumoRefis.length > 0 && (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
                                   {quickResumoRefis.map(item => (
@@ -691,15 +722,46 @@ export default function HomePage() {
                         <div className="space-y-5 md:space-y-6">
                           {!loadingAlertas && alertasVencimento && (
                             <div id="painel-alertas" className="scroll-mt-20">
+                              <style>{`
+                                #painel-alertas:fullscreen {
+                                  background: linear-gradient(to bottom right, rgb(254 242 242), rgb(255 247 237), rgb(254 252 232));
+                                  padding: 2rem;
+                                  overflow-y: auto;
+                                }
+                                #painel-alertas:fullscreen .max-h-\\[600px\\] {
+                                  max-height: calc(100vh - 400px);
+                                }
+                              `}</style>
                               <div className="bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 border-2 border-red-200 rounded-xl p-5 md:p-6 shadow-lg">
-                                <div className="flex items-center gap-3 mb-4">
-                                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center">
-                                    <span className="text-2xl">⚠️</span>
+                                <div className="flex items-center justify-between mb-4">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center">
+                                      <span className="text-2xl">⚠️</span>
+                                    </div>
+                                    <div>
+                                      <h4 className="text-lg md:text-xl font-bold text-gray-800">Alertas de Vencimento</h4>
+                                      <p className="text-xs md:text-sm text-gray-600">Monitoramento de prazos e inadimplências</p>
+                                    </div>
                                   </div>
-                                  <div>
-                                    <h4 className="text-lg md:text-xl font-bold text-gray-800">Alertas de Vencimento</h4>
-                                    <p className="text-xs md:text-sm text-gray-600">Monitoramento de prazos e inadimplências</p>
-                                  </div>
+                                  <button
+                                    onClick={() => {
+                                      const element = document.getElementById('painel-alertas')
+                                      if (element) {
+                                        if (document.fullscreenElement) {
+                                          document.exitFullscreen()
+                                        } else {
+                                          element.requestFullscreen().catch(err => {
+                                            console.error('Erro ao entrar em tela cheia:', err)
+                                          })
+                                        }
+                                      }
+                                    }}
+                                    className="px-4 py-2 bg-white hover:bg-gray-50 text-gray-700 rounded-lg shadow-md border border-gray-200 transition-all duration-200 flex items-center gap-2 text-sm font-semibold hover:scale-105"
+                                    title="Alternar Tela Cheia (ESC para sair)"
+                                  >
+                                    <span className="text-lg">⛶</span>
+                                    <span className="hidden sm:inline">Tela Cheia</span>
+                                  </button>
                                 </div>
 
                                 {/* Abas de Alertas */}
@@ -785,9 +847,9 @@ export default function HomePage() {
 
                                 {/* Tabela de Alertas */}
                                 <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                                  <div className="overflow-x-auto">
+                                  <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
                                     <table className="w-full text-left text-xs md:text-sm">
-                                      <thead className={`${
+                                      <thead className={`sticky top-0 z-10 ${
                                         abaAlertas === 'vencidos' ? 'bg-red-500' :
                                         abaAlertas === 'prestes' ? 'bg-orange-500' :
                                         'bg-green-500'
@@ -819,7 +881,7 @@ export default function HomePage() {
                                             )
                                           }
 
-                                          return dados.slice(0, 20).map((item, index) => (
+                                          return dados.map((item, index) => (
                                             <tr key={`${item.cpfCnpj}-${index}`} className="hover:bg-gray-50 transition-colors">
                                               <td className="py-3 px-3 font-semibold text-gray-800">{item.contribuinte}</td>
                                               <td className="py-3 px-3 text-gray-600">{item.cpfCnpj}</td>
@@ -877,7 +939,12 @@ export default function HomePage() {
                                 <div className="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between text-xs text-gray-600">
                                   <span>💡 Vencimento: data de lançamento + 10 dias</span>
                                   <span className="font-semibold">
-                                    Mostrando top 20 por valor • Ordenado por maior valor
+                                    {(() => {
+                                      const total = abaAlertas === 'vencidos' ? alertasVencimento.totais.vencidos :
+                                                   abaAlertas === 'prestes' ? alertasVencimento.totais.prestesVencer :
+                                                   alertasVencimento.totais.dentroPrazo
+                                      return `Mostrando ${total} registro${total !== 1 ? 's' : ''} • Ordenado por maior valor`
+                                    })()}
                                   </span>
                                 </div>
                               </div>
