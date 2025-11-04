@@ -12,7 +12,8 @@ import type {
   FonteNoticias,
   NoticiaItem,
   NoticiasResponse,
-  ResumoRefisResponse
+  ResumoRefisResponse,
+  AlertasVencimentoResponse
 } from '@/types/dashboard'
 
 export default function HomePage() {
@@ -26,9 +27,13 @@ export default function HomePage() {
   const [loadingCotacoes, setLoadingCotacoes] = useState(true)
   const [fonteNoticias, setFonteNoticias] = useState<FonteNoticias>('bahia')
   const [abaDados, setAbaDados] = useState<'refis' | 'news'>('refis')
+  const [subAbaRefis, setSubAbaRefis] = useState<'resumo' | 'alertas'>('resumo')
   const [refisResumo, setRefisResumo] = useState<ResumoRefisResponse | null>(null)
   const [loadingRefis, setLoadingRefis] = useState(true)
   const [erroRefis, setErroRefis] = useState<string | null>(null)
+  const [abaAlertas, setAbaAlertas] = useState<'vencidos' | 'prestes' | 'prazo'>('vencidos')
+  const [alertasVencimento, setAlertasVencimento] = useState<AlertasVencimentoResponse | null>(null)
+  const [loadingAlertas, setLoadingAlertas] = useState(true)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -92,6 +97,26 @@ export default function HomePage() {
       })
       .finally(() => {
         setLoadingRefis(false)
+      })
+  }, [])
+
+  useEffect(() => {
+    setLoadingAlertas(true)
+    fetch('/api/refis/alertas')
+      .then(res => res.json() as Promise<AlertasVencimentoResponse>)
+      .then(data => {
+        if (data?.success) {
+          setAlertasVencimento(data)
+        } else {
+          setAlertasVencimento(null)
+        }
+      })
+      .catch(err => {
+        console.error('Erro ao carregar alertas de vencimento:', err)
+        setAlertasVencimento(null)
+      })
+      .finally(() => {
+        setLoadingAlertas(false)
       })
   }, [])
 
@@ -435,11 +460,39 @@ export default function HomePage() {
                           </h3>
                           <p className="text-sm md:text-base text-gray-600">Panorama atualizado dos acordos e da arrecadação do REFIS 2025</p>
                         </div>
-                        {refisResumo?.resumo && (
-                          <div className="text-xs md:text-sm text-gray-500">
-                            <p>Período: {formatDate(refisResumo.resumo.primeiraAdesao)} - {formatDate(refisResumo.resumo.ultimaAdesao)}</p>
-                          </div>
-                        )}
+                      </div>
+
+                      {/* Sub-abas: Resumo Geral | Alertas de Vencimento */}
+                      <div className="mb-5 md:mb-6">
+                        <div className="flex items-center gap-2 bg-gradient-to-r from-gray-100 to-gray-50 rounded-xl p-1 border border-gray-200 flex-wrap">
+                          <button
+                            onClick={() => setSubAbaRefis('resumo')}
+                            className={`px-4 md:px-6 py-2.5 md:py-3 text-xs md:text-sm font-semibold rounded-lg transition-all duration-300 flex items-center gap-2 ${
+                              subAbaRefis === 'resumo'
+                                ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg'
+                                : 'bg-white text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                            }`}
+                          >
+                            <span className="text-base md:text-lg">📊</span>
+                            <span>Resumo Geral</span>
+                          </button>
+                          <button
+                            onClick={() => setSubAbaRefis('alertas')}
+                            className={`px-4 md:px-6 py-2.5 md:py-3 text-xs md:text-sm font-semibold rounded-lg transition-all duration-300 flex items-center gap-2 ${
+                              subAbaRefis === 'alertas'
+                                ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-lg'
+                                : 'bg-white text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                            }`}
+                          >
+                            <span className="text-base md:text-lg">⚠️</span>
+                            <span>Alertas de Vencimento</span>
+                            {!loadingAlertas && alertasVencimento && (alertasVencimento.totais.vencidos + alertasVencimento.totais.prestesVencer) > 0 && (
+                              <span className="ml-1 px-2 py-0.5 bg-white/30 rounded-full text-xs font-bold">
+                                {alertasVencimento.totais.vencidos + alertasVencimento.totais.prestesVencer}
+                              </span>
+                            )}
+                          </button>
+                        </div>
                       </div>
 
                       {loadingRefis ? (
@@ -451,18 +504,22 @@ export default function HomePage() {
                           {erroRefis}
                         </div>
                       ) : refisResumo ? (
-                        <div className="space-y-5 md:space-y-6">
-                          {quickResumoRefis.length > 0 && (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
-                              {quickResumoRefis.map(item => (
-                                <div key={item.label} className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl p-4 md:p-5 shadow-sm">
-                                  <p className="text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wide">{item.label}</p>
-                                  <p className="text-xl md:text-2xl font-bold text-gray-800 mt-1">{item.value}</p>
-                                  <p className="text-xs md:text-sm text-gray-500 mt-2">{item.helper}</p>
+                        <>
+                          {/* Conteúdo baseado na sub-aba selecionada */}
+                          {subAbaRefis === 'resumo' ? (
+                            /* RESUMO GERAL */
+                            <div className="space-y-5 md:space-y-6">
+                              {quickResumoRefis.length > 0 && (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
+                                  {quickResumoRefis.map(item => (
+                                    <div key={item.label} className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl p-4 md:p-5 shadow-sm">
+                                      <p className="text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wide">{item.label}</p>
+                                      <p className="text-xl md:text-2xl font-bold text-gray-800 mt-1">{item.value}</p>
+                                      <p className="text-xs md:text-sm text-gray-500 mt-2">{item.helper}</p>
+                                    </div>
+                                  ))}
                                 </div>
-                              ))}
-                            </div>
-                          )}
+                              )}
 
                           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5">
                             <div className="bg-gradient-to-br from-primary-orange/10 via-primary-red/5 to-white border border-primary-orange/30 rounded-xl p-4 md:p-5 shadow-sm">
@@ -630,14 +687,214 @@ export default function HomePage() {
                           </div>
                         </div>
                       ) : (
-                        <div className="py-10 text-center text-sm md:text-base text-gray-500">
-                          Nenhum dado do REFIS encontrado para exibir.
+                        /* ALERTAS DE VENCIMENTO */
+                        <div className="space-y-5 md:space-y-6">
+                          {!loadingAlertas && alertasVencimento && (
+                            <div id="painel-alertas" className="scroll-mt-20">
+                              <div className="bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 border-2 border-red-200 rounded-xl p-5 md:p-6 shadow-lg">
+                                <div className="flex items-center gap-3 mb-4">
+                                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center">
+                                    <span className="text-2xl">⚠️</span>
+                                  </div>
+                                  <div>
+                                    <h4 className="text-lg md:text-xl font-bold text-gray-800">Alertas de Vencimento</h4>
+                                    <p className="text-xs md:text-sm text-gray-600">Monitoramento de prazos e inadimplências</p>
+                                  </div>
+                                </div>
+
+                                {/* Abas de Alertas */}
+                                <div className="flex items-center gap-2 bg-white rounded-xl p-1 mb-4 flex-wrap">
+                                  <button
+                                    onClick={() => setAbaAlertas('vencidos')}
+                                    className={`flex-1 min-w-[120px] px-4 py-2.5 text-sm font-semibold rounded-lg transition-all duration-300 ${
+                                      abaAlertas === 'vencidos'
+                                        ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg'
+                                        : 'bg-white text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                                    }`}
+                                  >
+                                    <div className="flex items-center justify-center gap-2">
+                                      <span>🔴</span>
+                                      <span>Vencidos</span>
+                                      <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-full">
+                                        {alertasVencimento.totais.vencidos}
+                                      </span>
+                                    </div>
+                                  </button>
+
+                                  <button
+                                    onClick={() => setAbaAlertas('prestes')}
+                                    className={`flex-1 min-w-[120px] px-4 py-2.5 text-sm font-semibold rounded-lg transition-all duration-300 ${
+                                      abaAlertas === 'prestes'
+                                        ? 'bg-gradient-to-r from-orange-500 to-yellow-500 text-white shadow-lg'
+                                        : 'bg-white text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                                    }`}
+                                  >
+                                    <div className="flex items-center justify-center gap-2">
+                                      <span>⚠️</span>
+                                      <span>Prestes a Vencer</span>
+                                      <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-full">
+                                        {alertasVencimento.totais.prestesVencer}
+                                      </span>
+                                    </div>
+                                  </button>
+
+                                  <button
+                                    onClick={() => setAbaAlertas('prazo')}
+                                    className={`flex-1 min-w-[120px] px-4 py-2.5 text-sm font-semibold rounded-lg transition-all duration-300 ${
+                                      abaAlertas === 'prazo'
+                                        ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg'
+                                        : 'bg-white text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                                    }`}
+                                  >
+                                    <div className="flex items-center justify-center gap-2">
+                                      <span>✅</span>
+                                      <span>Dentro do Prazo</span>
+                                      <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-full">
+                                        {alertasVencimento.totais.dentroPrazo}
+                                      </span>
+                                    </div>
+                                  </button>
+                                </div>
+
+                                {/* Cards de Resumo por Aba */}
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                                  <div className={`rounded-lg p-4 ${
+                                    abaAlertas === 'vencidos' ? 'bg-red-100 border-2 border-red-300' : 'bg-white border border-gray-200'
+                                  }`}>
+                                    <p className="text-xs font-semibold text-gray-600 mb-1">Total Vencido</p>
+                                    <p className="text-lg font-bold text-red-600">{formatCurrency(alertasVencimento.totais.valorVencido)}</p>
+                                    <p className="text-xs text-gray-500 mt-1">{alertasVencimento.totais.vencidos} contribuintes</p>
+                                  </div>
+
+                                  <div className={`rounded-lg p-4 ${
+                                    abaAlertas === 'prestes' ? 'bg-orange-100 border-2 border-orange-300' : 'bg-white border border-gray-200'
+                                  }`}>
+                                    <p className="text-xs font-semibold text-gray-600 mb-1">Prestes a Vencer</p>
+                                    <p className="text-lg font-bold text-orange-600">{formatCurrency(alertasVencimento.totais.valorPrestesVencer)}</p>
+                                    <p className="text-xs text-gray-500 mt-1">{alertasVencimento.totais.prestesVencer} contribuintes</p>
+                                  </div>
+
+                                  <div className={`rounded-lg p-4 ${
+                                    abaAlertas === 'prazo' ? 'bg-green-100 border-2 border-green-300' : 'bg-white border border-gray-200'
+                                  }`}>
+                                    <p className="text-xs font-semibold text-gray-600 mb-1">Dentro do Prazo</p>
+                                    <p className="text-lg font-bold text-green-600">{formatCurrency(alertasVencimento.totais.valorDentroPrazo)}</p>
+                                    <p className="text-xs text-gray-500 mt-1">{alertasVencimento.totais.dentroPrazo} contribuintes</p>
+                                  </div>
+                                </div>
+
+                                {/* Tabela de Alertas */}
+                                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                                  <div className="overflow-x-auto">
+                                    <table className="w-full text-left text-xs md:text-sm">
+                                      <thead className={`${
+                                        abaAlertas === 'vencidos' ? 'bg-red-500' :
+                                        abaAlertas === 'prestes' ? 'bg-orange-500' :
+                                        'bg-green-500'
+                                      } text-white`}>
+                                        <tr>
+                                          <th className="py-3 px-3 font-semibold">Contribuinte</th>
+                                          <th className="py-3 px-3 font-semibold">CPF/CNPJ</th>
+                                          <th className="py-3 px-3 font-semibold">Email</th>
+                                          <th className="py-3 px-3 font-semibold">Telefone</th>
+                                          <th className="py-3 px-3 font-semibold text-right">Valor Total</th>
+                                          <th className="py-3 px-3 font-semibold text-center">Vencimento</th>
+                                          <th className="py-3 px-3 font-semibold text-center">Dias</th>
+                                          <th className="py-3 px-3 font-semibold">Situação</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody className="divide-y divide-gray-200">
+                                        {(() => {
+                                          const dados = abaAlertas === 'vencidos' ? alertasVencimento.vencidos :
+                                                       abaAlertas === 'prestes' ? alertasVencimento.prestesVencer :
+                                                       alertasVencimento.dentroPrazo
+
+                                          if (dados.length === 0) {
+                                            return (
+                                              <tr>
+                                                <td colSpan={8} className="py-8 text-center text-gray-500">
+                                                  Nenhum registro nesta categoria
+                                                </td>
+                                              </tr>
+                                            )
+                                          }
+
+                                          return dados.slice(0, 20).map((item, index) => (
+                                            <tr key={`${item.cpfCnpj}-${index}`} className="hover:bg-gray-50 transition-colors">
+                                              <td className="py-3 px-3 font-semibold text-gray-800">{item.contribuinte}</td>
+                                              <td className="py-3 px-3 text-gray-600">{item.cpfCnpj}</td>
+                                              <td className="py-3 px-3 text-gray-600 text-xs">
+                                                {item.email !== 'Não informado' ? (
+                                                  <a href={`mailto:${item.email}`} className="text-blue-600 hover:underline">
+                                                    {item.email}
+                                                  </a>
+                                                ) : (
+                                                  <span className="text-gray-400 italic">{item.email}</span>
+                                                )}
+                                              </td>
+                                              <td className="py-3 px-3 text-gray-600">
+                                                {item.telefone !== 'Não informado' ? (
+                                                  <a href={`tel:${item.telefone}`} className="text-blue-600 hover:underline">
+                                                    {item.telefone}
+                                                  </a>
+                                                ) : (
+                                                  <span className="text-gray-400 italic">{item.telefone}</span>
+                                                )}
+                                              </td>
+                                              <td className="py-3 px-3 text-right font-semibold text-gray-800">
+                                                {formatCurrency(item.valorTotalNegociado)}
+                                              </td>
+                                              <td className="py-3 px-3 text-center text-gray-600">
+                                                {new Date(item.dtVencimento).toLocaleDateString('pt-BR')}
+                                              </td>
+                                              <td className="py-3 px-3 text-center">
+                                                <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                                                  item.diasAtraso > 0 ? 'bg-red-100 text-red-700' :
+                                                  item.diasAtraso >= -5 && item.diasAtraso <= 0 ? 'bg-orange-100 text-orange-700' :
+                                                  'bg-green-100 text-green-700'
+                                                }`}>
+                                                  {item.diasAtraso > 0 ? `+${item.diasAtraso}` : item.diasAtraso}
+                                                </span>
+                                              </td>
+                                              <td className="py-3 px-3">
+                                                <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                                  item.situacaoPagamento === 'QUITADO' ? 'bg-green-100 text-green-700' :
+                                                  item.situacaoPagamento === 'NÃO PAGOU' ? 'bg-red-100 text-red-700' :
+                                                  'bg-yellow-100 text-yellow-700'
+                                                }`}>
+                                                  {item.situacaoPagamento}
+                                                </span>
+                                              </td>
+                                            </tr>
+                                          ))
+                                        })()}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </div>
+
+                                {/* Rodapé com Informações */}
+                                <div className="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between text-xs text-gray-600">
+                                  <span>💡 Vencimento: data de lançamento + 10 dias</span>
+                                  <span className="font-semibold">
+                                    Mostrando top 20 por valor • Ordenado por maior valor
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
                     </>
                   ) : (
-                    <>
-                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 mb-5 md:mb-6">
+                    <div className="py-10 text-center text-sm md:text-base text-gray-500">
+                      Nenhum dado do REFIS encontrado para exibir.
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 mb-5 md:mb-6">
                         <div>
                           <h3 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">
                             Notícias

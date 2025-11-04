@@ -86,6 +86,43 @@ export interface TopContribuinteItem {
   valorNegociado: number
 }
 
+export interface AlertaVencimentoItem {
+  contribuinte: string
+  cpfCnpj: string
+  email: string
+  telefone: string
+  tipoPessoa: string
+  valorTotalNegociado: number
+  valorArrecadado: number
+  situacaoPagamento: string
+  qtdParcelasTotal: number
+  qtdParcelasPagas: number
+  percParcelasPagas: number
+  valorParcelaMedia: number
+  faixaParcelamento: string
+  cidade: string
+  bairro: string
+  dtLancamento: string
+  dtVencimento: string
+  diasAtraso: number
+  percentualEntrada: number
+}
+
+export interface AlertasVencimentoResponse {
+  success: boolean
+  vencidos: AlertaVencimentoItem[]
+  prestesVencer: AlertaVencimentoItem[]
+  dentroPrazo: AlertaVencimentoItem[]
+  totais: {
+    vencidos: number
+    prestesVencer: number
+    dentroPrazo: number
+    valorVencido: number
+    valorPrestesVencer: number
+    valorDentroPrazo: number
+  }
+}
+
 export interface ResumoRefisResponse {
   success: boolean
   resumo: ResumoRefisMetrics
