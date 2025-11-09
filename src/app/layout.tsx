@@ -6,14 +6,14 @@ import { Providers } from "@/components/Providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Sistema Camaçari APP",
+  title: "SMART SEFAZ",
   description: "Sistema de Gestão - SEFAZ TECNOLOGIA",
   manifest: "/manifest.json",
   themeColor: "#ec212a",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Camaçari APP",
+    title: "SMART SEFAZ",
   },
   viewport: {
     width: "device-width",
@@ -21,8 +21,8 @@ export const metadata: Metadata = {
     maximumScale: 1,
   },
   icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
+    icon: "/fav.png",
+    apple: "/fav.png",
   },
 };
 
@@ -36,10 +36,10 @@ export default function RootLayout({
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#ec212a" />
-        <link rel="apple-touch-icon" href="/logo.png" />
+        <link rel="apple-touch-icon" href="/fav.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Camaçari APP" />
+        <meta name="apple-mobile-web-app-title" content="SMART SEFAZ" />
       </head>
       <body className={inter.className}>
         <Providers>{children}</Providers>

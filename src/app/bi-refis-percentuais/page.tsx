@@ -153,7 +153,7 @@ export default function BiRefisPercentuaisPage() {
             <div className="flex items-center gap-2">
               <span>© 2025</span>
               <span className="font-semibold bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">
-                Sistema Camaçari APP
+                SMART SEFAZ
               </span>
             </div>
             <div className="flex items-center gap-2">

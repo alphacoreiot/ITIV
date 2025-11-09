@@ -114,8 +114,8 @@ export default function LoginPage() {
       {/* Card de Login */}
       <div className="bg-white/95 backdrop-blur-xl border border-gray-200 shadow-2xl rounded-2xl p-8 md:p-12 w-full max-w-md relative z-10">
         {/* Logo */}
-        <div className="flex justify-center -mb-12">
-          <div className="relative w-48 h-32">
+        <div className="flex justify-center mb-8">
+          <div className="relative w-64 h-40">
             <Image
               src="/logo.png"
               alt="ITIV Logo"
@@ -124,13 +124,6 @@ export default function LoginPage() {
               priority
             />
           </div>
-        </div>
-
-        {/* Destaque IA */}
-        <div className="flex justify-center mb-8">
-          <span className="text-4xl font-black bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent tracking-wide">
-            I.A.
-          </span>
         </div>
 
         {/* Título */}

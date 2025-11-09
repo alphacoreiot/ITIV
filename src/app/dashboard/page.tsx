@@ -351,7 +351,7 @@ export default function HomePage() {
                       Olá, <span className="bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">{session.user?.name}</span>
                     </h2>
                     <p className="text-gray-600 text-base md:text-lg">
-                      Bem-vindo ao Sistema Camaçari APP
+                      Bem-vindo ao SMART SEFAZ
                     </p>
                   </div>
                   
@@ -1079,7 +1079,7 @@ export default function HomePage() {
             <div className="flex items-center gap-2">
               <span>© 2025</span>
               <span className="font-semibold bg-gradient-to-r from-primary-red via-primary-orange to-primary-purple bg-clip-text text-transparent">
-                Sistema Camaçari APP
+                SMART SEFAZ
               </span>
             </div>
             <div className="flex items-center gap-2">
