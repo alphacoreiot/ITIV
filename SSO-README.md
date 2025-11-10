@@ -15,7 +15,7 @@ A aplicação **Smart Sefaz** está **totalmente integrada** ao sistema SSO SEFA
 - ✅ Atualização de `ultimo_acesso` do usuário
 
 ### 2. **Controle de Permissões por Módulo**
-- ✅ Middleware que verifica permissões antes de acessar rotas
+- ✅ PermissionGuard component que verifica permissões client-side
 - ✅ Verificação de acesso aos módulos:
   - `/dashboard` → Dashboard
   - `/bi-refis` → BI REFIS
@@ -23,7 +23,8 @@ A aplicação **Smart Sefaz** está **totalmente integrada** ao sistema SSO SEFA
   - `/bi-tff` → BI TFF
   - `/bi-refis-percentuais` → BI REFIS Percentuais
 - ✅ Suporte a permissões: READ, WRITE, DELETE, ADMIN
-- ✅ Redirecionamento automático se sem permissão
+- ✅ Página de acesso negado automática
+- ✅ Middleware NextAuth para proteção básica de rotas
 
 ### 3. **Auditoria Completa**
 - ✅ Logs de LOGIN/LOGOUT

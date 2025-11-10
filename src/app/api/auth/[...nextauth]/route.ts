@@ -1,3 +1,6 @@
+// Force Node.js runtime for database and crypto operations
+export const runtime = 'nodejs'
+
 import NextAuth, { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { validateSSOLogin, logAccess } from "@/lib/sso"
