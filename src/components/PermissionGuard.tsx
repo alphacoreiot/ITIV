@@ -17,7 +17,7 @@ export default function PermissionGuard({ children }: { children: React.ReactNod
   const router = useRouter()
   const pathname = usePathname()
   const [hasPermission, setHasPermission] = useState(true)
-  const [isChecking, setIsChecking] = useState(true)
+  const [isChecking, setIsChecking] = useState(false)
 
   useEffect(() => {
     const checkPermission = async () => {
@@ -37,11 +37,13 @@ export default function PermissionGuard({ children }: { children: React.ReactNod
 
       // Se ainda está carregando, aguarda
       if (status === 'loading') {
+        setIsChecking(true)
         return
       }
 
       // Se está autenticado, verifica permissões
       if (status === 'authenticated' && session?.user) {
+        setIsChecking(true)
         try {
           const response = await fetch('/api/permissions')
           const data = await response.json()
