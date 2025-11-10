@@ -181,13 +181,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Informações de teste */}
-        <div className="mt-8 text-center">
-          <p className="text-xs text-gray-500">
-            Credenciais de teste: <span className="text-gray-700 font-mono font-semibold">admin / admin123</span>
-          </p>
-        </div>
-
         {/* Decorações com degradê das cores */}
         <div className="absolute -top-10 -right-10 w-24 h-24 bg-gradient-to-br from-primary-red to-primary-orange opacity-30 rounded-full blur-2xl"></div>
         <div className="absolute -bottom-10 -left-10 w-24 h-24 bg-gradient-to-br from-primary-purple to-primary-green opacity-30 rounded-full blur-2xl"></div>

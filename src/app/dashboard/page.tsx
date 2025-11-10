@@ -513,6 +513,7 @@ export default function HomePage() {
                                 #painel-resumo-geral:fullscreen {
                                   background: linear-gradient(to bottom right, rgb(249 250 251), rgb(255 255 255));
                                   padding: 2rem;
+                                  padding-bottom: 8rem;
                                   overflow-y: auto;
                                 }
                                 #painel-resumo-geral:fullscreen::before {
@@ -755,6 +756,7 @@ export default function HomePage() {
                                 #painel-alertas:fullscreen {
                                   background: linear-gradient(to bottom right, rgb(254 242 242), rgb(255 247 237), rgb(254 252 232));
                                   padding: 2rem;
+                                  padding-bottom: 8rem;
                                   overflow-y: auto;
                                 }
                                 #painel-alertas:fullscreen::before {
