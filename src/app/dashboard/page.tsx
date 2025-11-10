@@ -515,6 +515,35 @@ export default function HomePage() {
                                   padding: 2rem;
                                   overflow-y: auto;
                                 }
+                                #painel-resumo-geral:fullscreen::before {
+                                  content: '';
+                                  position: fixed;
+                                  top: 2rem;
+                                  left: 2rem;
+                                  width: 150px;
+                                  height: 70px;
+                                  background-image: url('/logo.png');
+                                  background-size: contain;
+                                  background-repeat: no-repeat;
+                                  background-position: left center;
+                                  z-index: 1000;
+                                  opacity: 0.95;
+                                }
+                                #painel-resumo-geral:fullscreen::after {
+                                  content: 'SMART SEFAZ - Resultados Inteligentes | © 2025 Prefeitura de Camaçari';
+                                  position: fixed;
+                                  bottom: 0;
+                                  left: 0;
+                                  right: 0;
+                                  background: linear-gradient(to right, rgba(236, 33, 42, 0.95), rgba(246, 132, 35, 0.95), rgba(124, 58, 150, 0.95));
+                                  color: white;
+                                  text-align: center;
+                                  padding: 1rem 2rem;
+                                  font-size: 0.875rem;
+                                  font-weight: 600;
+                                  z-index: 1000;
+                                  box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+                                }
                               `}</style>
                               
                               {/* Botão Tela Cheia */}
@@ -727,6 +756,36 @@ export default function HomePage() {
                                   background: linear-gradient(to bottom right, rgb(254 242 242), rgb(255 247 237), rgb(254 252 232));
                                   padding: 2rem;
                                   overflow-y: auto;
+                                }
+                                #painel-alertas:fullscreen::before {
+                                  content: '';
+                                  position: absolute;
+                                  top: 3rem;
+                                  left: 50%;
+                                  transform: translateX(-50%);
+                                  width: 150px;
+                                  height: 70px;
+                                  background-image: url('/logo.png');
+                                  background-size: contain;
+                                  background-repeat: no-repeat;
+                                  background-position: center;
+                                  z-index: 10;
+                                  opacity: 0.95;
+                                }
+                                #painel-alertas:fullscreen::after {
+                                  content: 'SMART SEFAZ - Resultados Inteligentes | © 2025 Prefeitura de Camaçari';
+                                  position: fixed;
+                                  bottom: 0;
+                                  left: 0;
+                                  right: 0;
+                                  background: linear-gradient(to right, rgba(236, 33, 42, 0.95), rgba(246, 132, 35, 0.95), rgba(124, 58, 150, 0.95));
+                                  color: white;
+                                  text-align: center;
+                                  padding: 1rem 2rem;
+                                  font-size: 0.875rem;
+                                  font-weight: 600;
+                                  z-index: 1000;
+                                  box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
                                 }
                                 #painel-alertas:fullscreen .max-h-\\[600px\\] {
                                   max-height: calc(100vh - 400px);
